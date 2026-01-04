@@ -1,0 +1,37 @@
+{
+  "model": "opus",
+  "enableAllProjectMcpServers": true,
+  "outputStyle": "Explanatory",
+  "statusLine": {
+    "type": "command",
+    "command": "~/.claude/statusline.sh"
+  },
+  "permissions": {
+    "allow": [
+      "Bash",
+      "Edit",
+      "Read",
+      "Write",
+      "Glob",
+      "Grep",
+      "Skill",
+      "Task",
+      "SlashCommand",
+      "WebFetch",
+      "WebSearch"
+    ],
+    "ask": [
+      "Bash(rm:*)",
+      "Bash(git push --force:*)",
+      "Bash(git reset --hard:*)"
+    ],
+    "deny": [
+      "Read(auth.json)",
+      "Edit(auth.json)",
+      "Write(auth.json)",
+      "Read(.env**)",
+      "Edit(.env**)",
+      "Write(.env**)"
+    ]
+  }
+}
