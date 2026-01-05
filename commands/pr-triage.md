@@ -69,7 +69,6 @@ If a reviewer took time to write a comment, it warrants analysis.
 
     | Skip If | Examples |
     | ------- | -------- |
-    | Bot-generated | dependabot, codecov, github-actions |
     | Resolved threads | Already addressed |
     | Pure praise | "LGTM", "Nice work", ":shipit:" |
     | CI status updates | Build passed/failed notifications |
@@ -174,7 +173,6 @@ If no actionable comments found, report: "No actionable comments found."
 
 ## Constraints
 
-- Skip bot comments (dependabot, codecov, etc.)
 - Skip resolved threads
 - Skip pure praise ("LGTM", "Nice work")
 - Do not implement fixes—triage only
