@@ -28,6 +28,7 @@ app/
 │   ├── Php/           # PHP-FPM service control
 │   ├── Postgresql/    # PostgreSQL service control
 │   ├── Redis/         # Redis service control
+│   ├── Scaffold/      # Project scaffolding generators
 │   ├── Server/        # Server management
 │   ├── Site/          # Site management
 │   ├── Supervisor/    # Process management
@@ -73,7 +74,7 @@ playbooks/             # Remote bash scripts
 - Php (4): logs, restart, start, stop
 - Postgresql (5): install, logs, restart, start, stop
 - Redis (5): install, logs, restart, start, stop
-- Scaffold (3): crons, hooks, supervisors
+- Scaffold (4): ai, crons, hooks, supervisors
 - Server (8): add, delete, firewall, info, install, logs, run, ssh
 - Site (8): create, delete, deploy, https, logs, shared:pull, shared:push, ssh
 - Supervisor (7): create, delete, logs, restart, start, stop, sync
