@@ -1,6 +1,6 @@
 ---
 description: Triage PR comments by technical validity
-allowed-tools: Bash(gh:*), Task
+allowed-tools: Bash(gh:*), Task, AskUserQuestion
 model: inherit
 ---
 
@@ -115,6 +115,44 @@ If a reviewer took time to write a comment, it warrants analysis.
     After all agents complete, compile findings using Triage Report format below.
   </step>
 
+  <step name="reply-prompt">
+    After displaying the report, ask the user:
+
+    "Would you like to reply to these comments on GitHub?"
+
+    - **Yes** → Reply to all analyzed comments
+    - **Yes, only [specific comments]** → User can specify which (e.g., "only the VALID ones", "just comment #3")
+    - **No** → End without replying
+
+    If No, end the command.
+  </step>
+
+  <step name="reply-post">
+    Spawn `pr-comment` agents **IN PARALLEL** for all comments (or user-specified subset).
+
+    **IMPORTANT:** Use a SINGLE message with MULTIPLE Task tool calls.
+
+    For each comment to reply to, use the Task tool with `subagent_type: "pr-comment"`:
+
+    ````
+    Post a reply to this PR comment:
+
+    **PR:** {owner}/{repo}#{pr_number}
+    **Comment ID:** {comment_id}
+    **Type:** {review_comment | issue_comment}
+    **Original author:** @{username}
+
+    **Our verdict:** {verdict}
+    **Our assessment:** {summary}
+
+    Reply with a friendly message that communicates our assessment.
+    If VALID: thank them for the catch.
+    If INVALID: kindly explain why the concern doesn't apply.
+    ````
+
+    After all agents complete, report total replies posted.
+  </step>
+
 </protocol>
 
 ## Triage Report
@@ -163,6 +201,35 @@ If a reviewer took time to write a comment, it warrants analysis.
 If no actionable comments found, report: "No actionable comments found."
 
 </report>
+
+## Reply Tone
+
+The `pr-comment` agent handles tone transformation. Expect replies to be **light-hearted and collaborative**, never dismissive or critical.
+
+| Verdict | Tone Approach |
+|---------|---------------|
+| **VALID - Implement** | Grateful: "Great catch! You're absolutely right..." |
+| **VALID - Consider** | Appreciative: "Thanks for flagging this! Good point worth considering..." |
+| **PARTIALLY VALID** | Balanced: "You raise a fair point! Part of this checks out..." |
+| **INVALID - Reject** | Friendly: "Thanks for looking at this! After tracing through, it looks like..." |
+| **INVALID - Subjective** | Respectful: "Appreciate the suggestion! This one comes down to style preference..." |
+
+**Key principles:**
+- Always thank the reviewer for their time
+- Use "we" language when discussing fixes
+- Frame disagreements as discoveries, not corrections
+- Keep it brief—save detailed explanations for follow-up if asked
+
+### Example Replies
+
+**VALID - Implement:**
+> Great catch! You're right—the null check is missing here. We'll get this fixed.
+
+**INVALID - Reject:**
+> Thanks for looking at this! After tracing through the code, it turns out the validation happens upstream in `UserService.php:45`, so we're covered here. Good instinct though!
+
+**INVALID - Subjective:**
+> Appreciate the suggestion! This one's more of a style call—we've been following the existing pattern in the codebase, but totally see where you're coming from.
 
 ## Standards
 

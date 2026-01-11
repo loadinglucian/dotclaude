@@ -380,6 +380,41 @@ Use `<protocol>` + `<step>` for multi-step workflows:
 
 **Why this works:** Named steps create implicit state machines that Claude follows more reliably than markdown headers.
 
+## Model Selection
+
+Choose the appropriate model based on task complexity:
+
+### Use `model: haiku`
+
+Fast, cost-efficient tasks that follow templates or run commands:
+
+| Pattern | Examples |
+|---------|----------|
+| **Tool runners** | Linters, formatters, build tools |
+| **Template transformers** | Tone adjustment, format conversion |
+| **Pure orchestrators** | Spawning other agents without analysis |
+| **Procedural workflows** | Git commands, file operations |
+
+### Use `model: inherit` (Sonnet/Opus)
+
+Tasks requiring reasoning, analysis, or judgment:
+
+| Pattern | Examples |
+|---------|----------|
+| **Static analysis** | Bug detection, security review |
+| **Code understanding** | Schematics, documentation |
+| **Decision making** | Commit message writing, PR triage |
+| **Complex synthesis** | Combining multiple sources |
+
+### Sub-Agent Pattern
+
+For multi-agent workflows, use the Anthropic-recommended pattern:
+
+- **Orchestrator**: Sonnet/Opus breaks down the problem
+- **Workers**: Haiku executes parallel subtasks
+
+This matches `pr-triage` → `trace-agent` and `/trace` → `trace-agent` patterns.
+
 ### Standards & Constraints
 
 End every agent/command with quality bars and guardrails:
