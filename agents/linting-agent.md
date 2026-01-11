@@ -1,7 +1,7 @@
 ---
 name: linting-agent
 description: Runs project-specific linting and formatting tools on changed files. Auto-detects available tools from composer.json and package.json.
-model: inherit
+model: haiku
 color: cyan
 ---
 

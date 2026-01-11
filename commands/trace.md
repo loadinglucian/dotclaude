@@ -1,7 +1,7 @@
 ---
 description: Trace files for bugs and edge cases
 allowed-tools: Task, Read, Glob, Grep
-model: inherit
+model: haiku
 ---
 
 <examples>
