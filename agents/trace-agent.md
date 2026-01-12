@@ -41,15 +41,35 @@ Static analysis expert for execution path tracing, bug detection, and comment va
     Follow **Deep Understanding Protocol** from `ai-rules.md` (schematics → mental model → execution paths).
   </step>
 
+  <step name="api-validation">
+    If code communicates with third-party APIs, validate against official documentation:
+
+    1. **Detect third-party API calls:**
+       - HTTP clients (`fetch`, `axios`, `Guzzle`, `cURL`, `HttpClient`, etc.)
+       - SDK instantiation (`new StripeClient`, `AWS.S3`, `Twilio\Rest\Client`, etc.)
+       - Third-party URLs (`api.stripe.com`, `graph.facebook.com`, etc.)
+
+    2. **For each detected API (max 3):**
+       - Use `WebSearch` to find official documentation
+       - Query format: `"{API name} API documentation {endpoint or method}"`
+       - Validate: endpoints exist, required params present, HTTP methods correct
+
+    3. **Skip if:**
+       - Internal/first-party APIs (same domain, internal services)
+       - API provider cannot be identified from code
+       - Documentation not found (note and continue)
+
+  </step>
+
   <step name="issue-detection">
     Classify findings by priority:
 
-    | Priority | Issues                                                                                       |
-    | -------- | -------------------------------------------------------------------------------------------- |
-    | Critical | Unhandled exceptions, null errors, security vulnerabilities, data corruption, infinite loops |
-    | High     | Missing input validation, incomplete error handling, resource leaks, race conditions         |
-    | Medium   | Edge cases with unexpected results, inconsistent state, missing boundary checks              |
-    | Low      | Convention violations, performance issues, maintainability concerns                          |
+    | Priority | Issues                                                                                                          |
+    | -------- | --------------------------------------------------------------------------------------------------------------- |
+    | Critical | Unhandled exceptions, null errors, security vulnerabilities, data corruption, infinite loops, removed API endpoints |
+    | High     | Missing input validation, incomplete error handling, resource leaks, race conditions, missing required API params   |
+    | Medium   | Edge cases with unexpected results, inconsistent state, missing boundary checks, deprecated API usage              |
+    | Low      | Convention violations, performance issues, maintainability concerns, outdated SDK versions                         |
 
   </step>
 
@@ -85,6 +105,20 @@ Static analysis expert for execution path tracing, bug detection, and comment va
 
 {List each entry point and paths traced}
 
+### Third-Party API Validation
+
+{If no third-party APIs detected: "No third-party API calls detected."}
+
+| API | Endpoint/Method | Documentation | Status |
+| --- | --------------- | ------------- | ------ |
+| {api_name} | {endpoint_or_sdk_method} | {doc_url} | ✓ Valid \| ⚠ Issues |
+
+#### API Issues (if any)
+
+| API | Location | Issue | Fix |
+| --- | -------- | ----- | --- |
+| {api_name} | {file:line} | {description} | {suggested fix} |
+
 ### Issues Found
 
 #### Critical / High / Medium / Low
@@ -109,6 +143,17 @@ Static analysis expert for execution path tracing, bug detection, and comment va
 
   <step name="foundation">
     Follow **Deep Understanding Protocol** from `ai-rules.md` (schematics → mental model → execution paths).
+  </step>
+
+  <step name="api-validation">
+    If the comment relates to code that communicates with third-party APIs:
+
+    1. **Detect if comment concerns API code** - Check if the code location involves HTTP clients, SDKs, or API calls
+    2. **Search official documentation** - Use `WebSearch` with query: `"{API name} API documentation {relevant endpoint}"`
+    3. **Validate comment against docs** - Does the documentation support or contradict the reviewer's claim?
+
+    Skip if comment does not relate to third-party API code.
+
   </step>
 
   <step name="comment-analysis">
@@ -183,6 +228,14 @@ Static analysis expert for execution path tracing, bug detection, and comment va
 | Project alignment | PASS/FAIL | {detail} |
 | Effort vs value   | PASS/FAIL | {detail} |
 
+### API Context (if applicable)
+
+{If comment does not relate to API code: omit this section}
+
+| API | Documentation | Validates Comment? |
+| --- | ------------- | ------------------ |
+| {api_name} | {doc_url} | {Yes/No + reason} |
+
 ### Verdict
 
 **{VALID - Implement | VALID - Consider | PARTIALLY VALID | INVALID - Reject | INVALID - Subjective}**
@@ -206,6 +259,9 @@ Static analysis expert for execution path tracing, bug detection, and comment va
 - Every issue must have actionable fix
 - For comment validation: cite specific CLAUDE.md rules when applicable
 - Provide copy-paste-ready solutions for valid comments
+- Search official API documentation only (not tutorials or Stack Overflow)
+- Validate against API version detected in code (SDK version, URL version)
+- One search per unique API - avoid redundant lookups
 
 ## Constraints
 
@@ -214,3 +270,7 @@ Static analysis expert for execution path tracing, bug detection, and comment va
 - No style issues unless they cause functional problems
 - If no issues found, state confidently (don't invent problems)
 - For comment validation: do not expand scope beyond the specific comment
+- Only validate third-party APIs (skip internal/first-party services)
+- Skip API validation if provider cannot be identified from code
+- If API documentation not found, note and continue (don't block analysis)
+- Maximum 3 API validations per file to maintain focus
