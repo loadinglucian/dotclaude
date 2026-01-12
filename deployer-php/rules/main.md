@@ -21,9 +21,11 @@ app/
 │   ├── Cron/          # Cron job management
 │   ├── Mariadb/       # MariaDB service control
 │   ├── Memcached/     # Memcached service control
-│   ├── Pro/           # Provider integrations: keys + provisioning
+│   ├── Pro/           # Provider integrations + consolidated commands
 │   │   ├── Aws/       # AWS EC2 integration
-│   │   └── Do/        # DigitalOcean integration
+│   │   ├── Do/        # DigitalOcean integration
+│   │   ├── Server/    # Consolidated server commands (logs, ssh)
+│   │   └── Site/      # Consolidated site commands (ssh)
 │   ├── Mysql/         # MySQL service control
 │   ├── Php/           # PHP-FPM service control
 │   ├── Postgresql/    # PostgreSQL service control
@@ -65,20 +67,20 @@ playbooks/             # Remote bash scripts
 
 **Command Domains:**
 
-- Nginx (4): logs, restart, start, stop
-- Cron (4): create, delete, logs, sync
-- Mariadb (5): install, logs, restart, start, stop
-- Memcached (5): install, logs, restart, start, stop
-- Pro (8): aws:key:add, aws:key:delete, aws:key:list, aws:provision, do:key:add, do:key:delete, do:key:list, do:provision
-- Mysql (5): install, logs, restart, start, stop
-- Php (4): logs, restart, start, stop
-- Postgresql (5): install, logs, restart, start, stop
-- Redis (5): install, logs, restart, start, stop
+- Nginx (3): restart, start, stop
+- Cron (3): create, delete, sync
+- Mariadb (4): install, restart, start, stop
+- Memcached (4): install, restart, start, stop
+- Pro (11): aws:key:add, aws:key:delete, aws:key:list, aws:provision, do:key:add, do:key:delete, do:key:list, do:provision, server:logs, server:ssh, site:ssh
+- Mysql (4): install, restart, start, stop
+- Php (3): restart, start, stop
+- Postgresql (4): install, restart, start, stop
+- Redis (4): install, restart, start, stop
 - Scaffold (4): ai, crons, hooks, supervisors
-- Server (8): add, delete, firewall, info, install, logs, run, ssh
-- Site (8): create, delete, deploy, https, logs, shared:pull, shared:push, ssh
-- Supervisor (7): create, delete, logs, restart, start, stop, sync
-- Valkey (5): install, logs, restart, start, stop
+- Server (6): add, delete, firewall, info, install, run
+- Site (7): create, delete, deploy, https, rollback, shared:pull, shared:push
+- Supervisor (6): create, delete, restart, start, stop, sync
+- Valkey (4): install, restart, start, stop
 
 **External Integrations:**
 

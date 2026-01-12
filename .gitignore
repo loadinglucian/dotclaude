@@ -1,0 +1,3 @@
+# Project-specific schematics (generated documentation)
+# These are specific to each project and shouldn't be in dotfiles
+deployer-php/schematics/
