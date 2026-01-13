@@ -61,6 +61,21 @@ Static analysis expert for execution path tracing, bug detection, and comment va
 
   </step>
 
+  <step name="docs-and-tests">
+    Trace related documentation and tests from schematic:
+
+    **Documentation (`docs/`, `.claude/`):**
+    - Read referenced documentation files
+    - Check if documentation reflects current code behavior
+    - Flag outdated or contradictory documentation
+
+    **Tests (`tests/`, `test/`, `spec/`):**
+    - Read referenced test files
+    - Trace test coverage: which entry points/paths are tested?
+    - Identify untested critical paths or edge cases
+
+  </step>
+
   <step name="issue-detection">
     Classify findings by priority:
 
@@ -70,6 +85,14 @@ Static analysis expert for execution path tracing, bug detection, and comment va
     | High     | Missing input validation, incomplete error handling, resource leaks, race conditions, missing required API params   |
     | Medium   | Edge cases with unexpected results, inconsistent state, missing boundary checks, deprecated API usage              |
     | Low      | Convention violations, performance issues, maintainability concerns, outdated SDK versions                         |
+
+    **Documentation/Test Issues:**
+
+    | Priority | Issues                                                                    |
+    | -------- | ------------------------------------------------------------------------- |
+    | High     | Documentation contradicts code behavior, tests assert wrong behavior      |
+    | Medium   | Critical paths untested, documentation outdated but not contradictory     |
+    | Low      | Minor documentation gaps, edge cases untested                             |
 
   </step>
 
@@ -93,17 +116,39 @@ Static analysis expert for execution path tracing, bug detection, and comment va
 
 ### File Overview
 
-| Attribute    | Value                                             |
-| ------------ | ------------------------------------------------- |
-| Purpose      | {one-line description}                            |
-| Type         | {Command\|Service\|Trait\|Repository\|DTO\|Other} |
-| Complexity   | {Low\|Medium\|High\|Critical}                     |
-| Dependencies | {files this depends on}                           |
-| Dependents   | {files that depend on this}                       |
+| Attribute     | Value                                             |
+| ------------- | ------------------------------------------------- |
+| Purpose       | {one-line description}                            |
+| Type          | {Command\|Service\|Trait\|Repository\|DTO\|Other} |
+| Complexity    | {Low\|Medium\|High\|Critical}                     |
+| Dependencies  | {files this depends on}                           |
+| Dependents    | {files that depend on this}                       |
+| Documentation | {count} files                                     |
+| Test coverage | {count} files ({tested entry points}/{total})     |
 
 ### Execution Paths Analyzed
 
 {List each entry point and paths traced}
+
+### Documentation & Test Coverage
+
+#### Related Documentation
+
+| Path | Status | Notes |
+| ---- | ------ | ----- |
+| {doc path} | ✓ Current \| ⚠ Outdated \| ✗ Contradicts | {details} |
+
+{If no documentation found: "No related documentation found."}
+
+#### Test Coverage
+
+| Test File | Entry Points Covered | Paths Covered |
+| --------- | -------------------- | ------------- |
+| {test path} | {methods tested} | {which execution paths} |
+
+**Untested Critical Paths:** {list or "None - all critical paths tested"}
+
+{If no tests found: "No related tests found."}
 
 ### Third-Party API Validation
 

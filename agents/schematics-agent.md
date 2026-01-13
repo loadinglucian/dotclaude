@@ -41,6 +41,8 @@ Documentation architect for creating comprehensive code schematics.
     - Trace execution paths from entry points
     - Map all imports and their usage
     - Identify implicit couplings (shared resources)
+    - Search for related documentation (`docs/`, `.claude/`)
+    - Search for related tests (`tests/`, `test/`, `spec/`)
 
   </step>
 
@@ -134,6 +136,23 @@ Documentation architect for creating comprehensive code schematics.
 ## Notes
 
 {Important observations, potential issues, architectural notes}
+
+## Related Documentation
+
+| Type | Path | Description |
+| ---- | ---- | ----------- |
+| User docs | {path in docs/} | {what it documents} |
+| AI docs | {path in .claude/} | {what it documents} |
+
+{If no related documentation found: "No related documentation found."}
+
+## Related Tests
+
+| Path | Coverage |
+| ---- | -------- |
+| {test file path} | {what aspects are tested} |
+
+{If no related tests found: "No related tests found."}
 ````
 
 ## Reference
@@ -173,12 +192,14 @@ Documentation architect for creating comprehensive code schematics.
 
 ### Analysis Summary
 
-| Attribute    | Value             |
-| ------------ | ----------------- |
-| Entry points | {count and names} |
-| Dependencies | {count}           |
-| Couplings    | {count by type}   |
-| Complexity   | {Low/Medium/High} |
+| Attribute     | Value             |
+| ------------- | ----------------- |
+| Entry points  | {count and names} |
+| Dependencies  | {count}           |
+| Couplings     | {count by type}   |
+| Related docs  | {count}           |
+| Related tests | {count}           |
+| Complexity    | {Low/Medium/High} |
 
 ### Sections
 
