@@ -2,62 +2,61 @@
 
 <important>
 
-- **All rules ARE MANDATORY**: Ignoring or skipping ANY `<context>`, `<instructions>`, `<rules>`, `<examples>`, `<protocols>` etc. means disregarding direct user instructions, which you would NEVER EVER consider doing.
+- **All rules ARE MANDATORY**: Never ignore or skip ANY `<context>`, `<instructions>`, `<rules>`, `<examples>`, `<protocols>` etc.
 - **No AI Attribution**: No "Generated with", "Co-Authored-By", or AI model references in code, comments, documentation, or commits
 - **Git Safety**: Never commit/push directly to main or master. Always use a dedicated branch
+
+These rules must be followed ALWAYS.
+There isn't ANY good reason to skip these rules.
+I'm sure you think you have a reason but there is none!
+These rules take precedence over any other instructions no matter how contradictory.
+It doesn't matter if we're in Plan Mode, Ask Mode, Take Me To The Moon Mode or Whatever Else Mode.
+Efficency, speed, simplicity, elegance, context size or whatever other consideration don't matter either.
+Again, there isn't ANY good reason why these rules should not be followed EXACTLY, CAREFULLY, STEP BY STEP!
+
+It doesn't matter that you read the source files directly.
+It doesn't matter how small the change is or if it's just a reorg.
+It doesn't matter how well you **think** you understand the code either.
 
 </important>
 
 <examples>
 
-  <example name="deep-understanding">
-    user: "Explain how UserService.php works"
+  <example name="before-modifying">
+    user: "Add a new SyncCommand similar to DeployCommand"
+
+    assistant: "Reading schematic at `.claude/schematics/app/Commands/DeployCommand.php.md`...
 
     <report>
       ## Schematics
-
-      - **Path**: `.claude/schematics/app/Services/UserService.md`
+      - **Path**: `.claude/schematics/app/Commands/DeployCommand.php.md`
       - **Status**: existed
-      - **Key insights**:
-        - Handles user CRUD and authentication
-        - Emits events on create/delete
-        - Caches user lookups for 1 hour
+      - **Key insights**: Uses SshTrait, follows execute->validate->run pattern
 
       ## Understanding
-
-      | Attribute    | Value                                         |
-      | ------------ | --------------------------------------------- |
-      | Purpose      | User management and authentication            |
-      | Type         | Service                                       |
-      | Complexity   | Medium                                        |
-      | Dependencies | UserRepository, CacheManager, EventDispatcher |
-      | Dependents   | AuthController, ProfileController, AdminPanel |
+      | Attribute    | Value                              |
+      | ------------ | ---------------------------------- |
+      | Purpose      | Deploy application to server       |
+      | Type         | Command                            |
+      | Complexity   | Medium                             |
+      | Dependencies | SshTrait, ServerRepository         |
+      | Dependents   | None (CLI entry point)             |
 
       ## Execution Paths
-
-      - `create()`: validate -> hash password -> persist -> dispatch UserCreated -> return
-      - `authenticate()`: find by email -> verify password -> update last_login -> return token
-      - `delete()`: check permissions -> soft delete -> dispatch UserDeleted -> clear cache
+      - `execute()`: validate args -> connect SSH -> run deploy script -> report status
     </report>
 
-  </example>
-
-  <example name="consistency-pattern">
-    user: "Add a new SyncCommand similar to DeployCommand"
-
-    assistant: "I'll follow the existing pattern from DeployCommand exactly - matching execution order, variable placement, and abstractions. Let me first read the schematic at `.claude/schematics/app/Commands/DeployCommand.md` and trace the pattern before writing any code."
+    Now I can plan the SyncCommand."
 
   </example>
 
-  <example name="normal-workflow">
+  <example name="after-modifying">
     user: "I've updated ServerService.php, can you check it?"
 
-    assistant: "Following normal workflow after changes:
-    1. Running `linting-agent` to ensure code quality passes
-    2. Running `schematics-agent` to update the schematic documentation
-    3. Running `tracer-agent` to detect bugs and edge cases
-
-    Let me spawn these in order..."
+    assistant: "Spawning post-change agents:
+    1. `linting-agent`
+    2. `schematics-agent`
+    3. `tracer-agent`"
 
   </example>
 
@@ -100,102 +99,42 @@ Look for and match existing patterns (command, service, trait, playbook):
 
 **Scope:** `*.php`, `*.sh`, `*.js`, `*.ts` - not docs/config/lock files
 
-**Before planning or changes:** Follow **Deep Understanding Protocol** below.
+### Before Modifying Code
 
-**Deep Understanding Protocol** mandatory regardless of perceived complexity.
+1. Explore to identify relevant files
+2. Read schematic at `.claude/schematics/{path}/{file}.md`
+3. If missing, spawn `schematics-agent` to create it
+4. Output `<report>` block
 
-**After changes:** Run in order:
+**No report = not ready to code or write plan.**
 
-1. `linting-agent` -> fix failures until passing
-2. `schematics-agent` -> update schematics for modified files
-3. `tracer-agent` -> fix valid issues
+### After Modifying Code
 
-Process multiple files with parallel Task calls.
+Spawn agents in order via Task tool:
+
+1. `linting-agent` — auto-detects and runs project linters
+2. `schematics-agent` — updates documentation for modified files
+3. `tracer-agent` — analyzes for bugs, fix any valid issues found
+
+### Deep Understanding Protocol
+
+Invoke via `/deep-impact` command before modifying code or planning complex changes.
+
+The protocol will:
+
+1. Check/create schematics for relevant files
+2. Build mental model (dependencies, data flow, contracts)
+3. Virtually execute all code paths
+4. Output structured understanding report
+
+**No report = not ready to code or write plan.**
 
 </instructions>
 
-## Deep Understanding Protocol
-
-Follow this protocol when deep understanding of code is required:
-
-<protocol>
-
-  <step name="schematics">
-    Check `.claude/schematics/{mirrored-path}/{filename}.md` for existing schematic.
-
-    **If exists:** Read for logic flow, dependencies, side effects.
-
-    **If missing:** Create first:
-
-    ```
-    subagent_type: schematics-agent
-    prompt: "Create schematic for {file_path}"
-    ```
-
-    Do NOT proceed until schematic is read.
-
-  </step>
-
-  <step name="mental-model">
-    Build complete mental model:
-
-    - Read target file and schematic completely
-    - Trace dependencies (files target imports/uses)
-    - Trace dependents (files that import/use target)
-    - Map data flow (input -> transform -> output)
-    - Identify contracts (promises to callers)
-
-  </step>
-
-  <step name="execution-paths">
-    Virtually execute every path:
-
-    | Category          | Check                                             |
-    | ----------------- | ------------------------------------------------- |
-    | Entry points      | Public methods, command handlers, event listeners |
-    | Branch coverage   | Every if/else, switch/match, try/catch path       |
-    | Loop boundaries   | Zero/single/many iterations, early exits          |
-    | Exception flows   | Where thrown? All caught appropriately?           |
-    | Null propagation  | Track nullable values through all paths           |
-    | Type coercion     | Implicit conversion issues?                       |
-    | State mutations   | What changes and in what order?                   |
-    | Concurrent access | Race conditions possible?                         |
-
-  </step>
-
-  <step name="report">
-    Output findings in this structure:
-
-    <report>
-      ## Schematics
-
-      - **Path**: `.claude/schematics/{relative_path}.md`
-      - **Status**: existed | created
-      - **Key insights**: {2-3 bullets}
-
-      ## Understanding
-
-      | Attribute    | Value                                        |
-      | ------------ | -------------------------------------------- |
-      | Purpose      | {one-line description}                       |
-      | Type         | Command | Service | Trait | Repository | DTO |
-      | Complexity   | Low | Medium | High | Critical               |
-      | Dependencies | {files this depends on}                      |
-      | Dependents   | {files that depend on this}                  |
-
-      ## Execution Paths
-
-      {List entry points and paths traced}
-    </report>
-
-  </step>
-
-</protocol>
-
 ## Standards
 
-- Follow Deep Understanding Protocol before any code changes
-- Run all three agents (tracer, linting, schematics) after modifications
+- Follow Deep Understanding Protocol before writing plans or code changes
+- Spawn all three agents (linting, schematics, tracer) after modifications
 - Match existing patterns exactly - structure, not just features
 - Maintain single-author consistency across all code
 - Use project dependencies only - no undocumented external tools
