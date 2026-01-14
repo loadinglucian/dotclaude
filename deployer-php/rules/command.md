@@ -6,20 +6,18 @@ paths: app/Console/**/*.php, app/Traits/**/*.php
 
 Commands are Symfony Console classes that handle user I/O. Traits provide shared command behavior. Both use Laravel Prompts via `$this->io` wrapper methods and BaseCommand methods for output.
 
-<important>
+> **IMPORTANT**
+>
+> - Every prompt MUST have a corresponding CLI option
+> - Never invoke other commands (NO proxy commands)
+> - Validate conflicting options immediately after `parent::execute()` (early validation)
+> - NEVER use `getOptionOrPrompt()` directly - it's private
+> - New commands MUST be registered in `SymfonyApp.php` (import + add to `$commands` array)
+> - **After command changes:** Run `docs-agent` in parallel with other post-change agents to sync documentation
 
-- Every prompt MUST have a corresponding CLI option
-- Never invoke other commands (NO proxy commands)
-- Validate conflicting options immediately after `parent::execute()` (early validation)
-- NEVER use `getOptionOrPrompt()` directly - it's private
-- New commands MUST be registered in `SymfonyApp.php` (import + add to `$commands` array)
-- **After command changes:** Run `docs-agent` in parallel with other post-change agents to sync documentation
+## Context
 
-</important>
-
-<context>
-
-## Non-Interactive Design
+### Non-Interactive Design
 
 Commands support both interactive and non-interactive execution through a simple pattern: **options replace prompts**.
 
@@ -38,7 +36,7 @@ Commands support both interactive and non-interactive execution through a simple
 
 Falling through to interactive prompts when CLI options are omitted is the intended pattern, not a bug.
 
-## Output Methods
+### Output Methods
 
 Use BaseCommand methods. Never use SymfonyStyle directly.
 
@@ -46,21 +44,21 @@ Use BaseCommand methods. Never use SymfonyStyle directly.
 - `h1`, `hr`
 - `displayDeets`, `ul`, `ol`
 
-## Input Method Selection
+### Input Method Selection
 
 | Input Type             | Method                         | Validation  |
 | ---------------------- | ------------------------------ | ----------- |
 | Boolean (confirm/flag) | `getBooleanOptionOrPrompt()`   | None needed |
 | String/array           | `getValidatedOptionOrPrompt()` | Required    |
 
-## Validator Naming Convention
+### Validator Naming Convention
 
 | Pattern            | Returns   | Use Case                |
 | ------------------ | --------- | ----------------------- |
 | `validate*Input()` | `?string` | Prompts and CLI options |
 | `validate*()`      | throws    | Heavy I/O validation    |
 
-## Command Options Naming
+### Command Options Naming
 
 | Option           | Usage                    | Type           |
 | ---------------- | ------------------------ | -------------- |
@@ -72,11 +70,10 @@ Use BaseCommand methods. Never use SymfonyStyle directly.
 
 `--server`/`--domain` for SELECTING existing resources, `--name` for DEFINING new ones.
 
-</context>
+## Examples
 
-<examples>
+### Example: Command Structure
 
-  <example name="command-structure">
 ```php
 #[AsCommand(name: 'namespace:action', description: 'Brief description')]
 final class ActionCommand extends BaseCommand
@@ -108,11 +105,10 @@ final class ActionCommand extends BaseCommand
     }
 
 }
+```
 
-````
-  </example>
+### Example: Trait Structure
 
-  <example name="trait-structure">
 ```php
 <?php
 
@@ -158,11 +154,10 @@ trait ServersTrait
         return null;
     }
 }
-````
+```
 
-  </example>
+### Example: Trait Exception Handling
 
-  <example name="trait-exception-handling">
 ```php
 // In trait - throws, doesn't catch
 protected function selectServer(): ServerDTO
@@ -174,20 +169,19 @@ protected function selectServer(): ServerDTO
 // In command - catches at execute() level
 protected function execute(...): int
 {
-try {
-$server = $this->selectServer();  // Trait method
+    try {
+        $server = $this->selectServer();  // Trait method
         $site = $this->selectSite();      // Trait method
     } catch (ValidationException $e) {
         $this->nay($e->getMessage());
-return Command::FAILURE;
+        return Command::FAILURE;
+    }
+    // ...
 }
-// ...
-}
+```
 
-````
-  </example>
+### Example: Non-Interactive Fallback
 
-  <example name="non-interactive-fallback">
 ```php
 // Option provided → uses CLI value, skips prompt
 // Option omitted → falls through to interactive prompt
@@ -203,30 +197,28 @@ if ($generateKey) {
     );
     $deployKeyPath = ($choice === 'generate') ? null : $this->promptDeployKeyPairPath();
 }
-````
+```
 
-  </example>
+### Example: Validation Exception
 
-  <example name="validation-exception">
 ```php
 use DeployerPHP\Exceptions\ValidationException;
 
 // IoService throws on validation failure (CLI mode)
 // Interactive prompts re-prompt until valid, so no exception there
 try {
-$name = $this->io->getValidatedOptionOrPrompt(...);
+    $name = $this->io->getValidatedOptionOrPrompt(...);
     $host = $this->io->getValidatedOptionOrPrompt(...);
     $port = $this->io->getValidatedOptionOrPrompt(...);
 } catch (ValidationException $e) {
     $this->nay($e->getMessage()); // Display the validation error
-return Command::FAILURE;
+    return Command::FAILURE;
 }
 // All values guaranteed valid after try-catch
+```
 
-````
-  </example>
+### Example: Validator Signature
 
-  <example name="validator-signature">
 ```php
 protected function validateNameInput(mixed $value): ?string
 {
@@ -242,22 +234,20 @@ protected function validateNameInput(mixed $value): ?string
 
     return null;
 }
-````
+```
 
-  </example>
+### Example: Boolean Flag Simple
 
-  <example name="boolean-flag-simple">
 ```php
 // Definition
 $this->addOption('yes', 'y', InputOption::VALUE_NONE, 'Skip confirmation');
 
 // Usage: --yes or -y
 $skipConfirm = $this->input->getOption('yes');
+```
 
-````
-  </example>
+### Example: Boolean Flag Tristate
 
-  <example name="boolean-flag-tristate">
 ```php
 // Definition
 $this->addOption('php-default', null, InputOption::VALUE_NEGATABLE, 'Set as default PHP');
@@ -267,20 +257,19 @@ $phpDefault = $this->input->getOption('php-default');
 if (null === $phpDefault) {
     $phpDefault = $this->promptConfirm('Set as default PHP?');
 }
-````
+```
 
-  </example>
+### Example: Boolean Prompt
 
-  <example name="boolean-prompt">
 ```php
 $confirmed = $this->io->getBooleanOptionOrPrompt(
     'yes',
     fn () => $this->io->promptConfirm('Proceed?')
 );
 ```
-  </example>
 
-  <example name="validated-string">
+### Example: Validated String
+
 ```php
 // Throws ValidationException on CLI validation failure
 // Wrap in try-catch to handle gracefully
@@ -295,9 +284,9 @@ try {
     return Command::FAILURE;
 }
 ```
-  </example>
 
-  <example name="multiselect-cli">
+### Example: Multiselect CLI
+
 ```php
 try {
     $selected = $this->io->getValidatedOptionOrPrompt(
@@ -312,13 +301,12 @@ try {
 
 // Normalize: CLI gives string, prompt gives array
 if (is_string($selected)) {
-$selected = array_filter(array_map(trim(...), explode(',', $selected)));
+    $selected = array_filter(array_map(trim(...), explode(',', $selected)));
 }
+```
 
-````
-  </example>
+### Example: Multi-Path Options
 
-  <example name="multi-path-options">
 ```php
 // In configure()
 $this->addOption('generate-deploy-key', null, InputOption::VALUE_NONE, 'Generate new deploy key');
@@ -335,11 +323,10 @@ if (!$generateKey && null === $customKeyPath) {
     $choice = $this->io->promptSelect(...);
     // ...
 }
-````
+```
 
-  </example>
+### Example: Confirmation Simple
 
-  <example name="confirmation-simple">
 ```php
 // Definition
 $this->addOption('yes', 'y', InputOption::VALUE_NONE, 'Skip confirmation');
@@ -347,13 +334,12 @@ $this->addOption('yes', 'y', InputOption::VALUE_NONE, 'Skip confirmation');
 // Usage
 $confirmed = $this->io->getBooleanOptionOrPrompt('yes', fn () => $this->io->promptConfirm('Proceed?'));
 if (! $confirmed) {
-return Command::SUCCESS;
+    return Command::SUCCESS;
 }
+```
 
-````
-  </example>
+### Example: Confirmation Destructive
 
-  <example name="confirmation-destructive">
 ```php
 // Definition
 $this->addOption('force', 'f', InputOption::VALUE_NONE, 'Skip type-to-confirm');
@@ -367,11 +353,10 @@ if (!$forceSkip) {
         return Command::FAILURE;
     }
 }
-````
+```
 
-  </example>
+### Example: Command Replay
 
-  <example name="command-replay">
 ```php
 $this->commandReplay('server:delete', [
     'server' => $server->name,
@@ -379,11 +364,10 @@ $this->commandReplay('server:delete', [
 ]);
 
 return Command::SUCCESS;
+```
 
-````
-  </example>
+### Example: Wrong No Try-Catch
 
-  <example name="wrong-no-try-catch">
 ```php
 // WRONG - No try-catch around validated input
 $value = $this->io->getValidatedOptionOrPrompt(...);
@@ -396,11 +380,10 @@ try {
     $this->nay($e->getMessage());
     return Command::FAILURE;
 }
-````
+```
 
-  </example>
+### Example: Wrong No Validator
 
-  <example name="wrong-no-validator">
 ```php
 // WRONG - No validator for string input
 $env = $this->io->promptSelect('Environment:', $options);
@@ -408,20 +391,19 @@ $env = $this->io->promptSelect('Environment:', $options);
 
 // CORRECT - Always validate string/array inputs
 try {
-$env = $this->io->getValidatedOptionOrPrompt(
+    $env = $this->io->getValidatedOptionOrPrompt(
         'env',
         fn ($validate) => $this->io->promptSelect('Environment:', $options),
         fn ($value) => $this->validateEnvInput($value, $options)
     );
 } catch (ValidationException $e) {
     $this->nay($e->getMessage());
-return Command::FAILURE;
+    return Command::FAILURE;
 }
+```
 
-````
-  </example>
+### Example: Wrong Separate Try-Catch
 
-  <example name="wrong-separate-try-catch">
 ```php
 // WRONG - Separate try-catch for each input (verbose)
 try {
@@ -439,11 +421,10 @@ try {
     $this->nay($e->getMessage());
     return Command::FAILURE;
 }
-````
+```
 
-  </example>
+### Example: Wrong Late Validation
 
-  <example name="wrong-late-validation">
 ```php
 // WRONG - Late validation (after SSH/playbook calls)
 protected function execute(...): int
@@ -463,7 +444,7 @@ protected function execute(...): int
 // CORRECT - Early validation (before any I/O)
 protected function execute(...): int
 {
-parent::execute($input, $output);
+    parent::execute($input, $output);
 
     // Validate FIRST, before header
     if ($optionA && $optionB) {
@@ -476,13 +457,9 @@ parent::execute($input, $output);
     // ...
 
 }
-
 ```
-  </example>
 
-</examples>
-
-<rules>
+## Rules
 
 - Traits let `ValidationException` propagate to commands - never catch in traits
 - Group related validated inputs in single try-catch block
@@ -491,6 +468,3 @@ parent::execute($input, $output);
 - Validate conflicting options BEFORE any I/O (early validation)
 - Booleans use `getBooleanOptionOrPrompt()`; strings/arrays use `getValidatedOptionOrPrompt()`
 - Multi-path prompts need separate options, conflict detection in early validation
-
-</rules>
-```

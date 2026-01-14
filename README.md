@@ -29,24 +29,21 @@ ln -s /path/to/dotclaude ~/.claude
 
 Agents are spawned by Claude using the Task tool. They run autonomously and return structured reports.
 
-| Agent              | Description                                                                            |
-| ------------------ | -------------------------------------------------------------------------------------- |
-| `trace-agent`      | Deep static analysis—traces execution paths, identifies bugs, validates PR comments    |
-| `schematics-agent` | Creates/updates code documentation with logic flow, dependencies, and Mermaid diagrams |
-| `linting-agent`    | Auto-detects and runs project linters (Rector, Pint, PHPStan, ESLint, Prettier, etc.)  |
+| Agent           | Description                                                                           |
+| --------------- | ------------------------------------------------------------------------------------- |
+| `linting-agent` | Auto-detects and runs project linters (Rector, Pint, PHPStan, ESLint, Prettier, etc.) |
 
 ## Commands
 
 Commands are invoked with `/command-name` in the Claude Code CLI.
 
-| Command          | Description                                                                 |
-| ---------------- | --------------------------------------------------------------------------- |
-| `/git commit`    | Create branch (if on main) and commit all changes with Conventional Commits |
-| `/git push`      | Push branch and open a draft PR on GitHub                                   |
-| `/git sync`      | Rebase on upstream, update branches, delete stale branches                  |
-| `/git ship`      | Full pipeline: commit → push → merge → sync                                 |
-| `/pr-triage`     | Fetch PR comments and validate each through trace-agent analysis            |
-| `/trace <files>` | Orchestrate parallel trace-agent analysis across multiple files             |
+| Command       | Description                                                                 |
+| ------------- | --------------------------------------------------------------------------- |
+| `/git commit` | Create branch (if on main) and commit all changes with Conventional Commits |
+| `/git push`   | Push branch and open a draft PR on GitHub                                   |
+| `/git sync`   | Rebase on upstream, update branches, delete stale branches                  |
+| `/git ship`   | Full pipeline: commit → push → merge → sync                                 |
+| `/pr-triage`  | Analyze all PR files and assess each comment holistically                   |
 
 ## Rules
 
@@ -54,7 +51,7 @@ Rules activate based on file patterns. They provide context-specific instruction
 
 | Rule                 | Triggers On      | Description                                                          |
 | -------------------- | ---------------- | -------------------------------------------------------------------- |
-| `ai-rules.md`        | Always           | Core workflow: Deep Understanding Protocol, post-change verification |
+| `ai-rules.md`        | Always           | Core workflow: code understanding, post-change linting               |
 | `php-rules.md`       | `**/*.php`       | Yoda conditions, strict types, PSR-12, Symfony patterns              |
 | `js-rules.md`        | `package.json`   | Package manager detection (bun/pnpm/yarn/npm)                        |
 | `pest-rules.md`      | `tests/**/*.php` | Pest PHP testing conventions, AAA pattern, mocking                   |
@@ -92,7 +89,7 @@ The `deployer-php/` directory contains Claude Code configuration specific to the
 
 ### DeployerPHP Schematics
 
-Pre-generated code documentation for key classes (Container, BaseCommand, Traits, etc.). These schematics provide context for the Deep Understanding Protocol defined in `ai-rules.md`.
+Pre-generated code documentation for key classes (Container, BaseCommand, Traits, etc.).
 
 ### Setup
 

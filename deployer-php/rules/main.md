@@ -2,9 +2,9 @@
 
 We're building DeployerPHP, a server and site deployment tool for PHP -- a Composer package and CLI built on Symfony Console/
 
-<context>
+## Context
 
-## Architecture
+### Architecture
 
 ```mermaid
 flowchart TD
@@ -92,69 +92,66 @@ flowchart LR
     Commands --> IoService --> laravel-prompts
 ```
 
-</context>
+### Maintain
 
-<examples>
+Keep architecture updated when making changes.
 
-  <example name="di-production">
-    ```php
-    // Production - use container for all object creation except DTOs
-    $service = $this->container->build(MyService::class);
-    ```
-  </example>
+## Examples
 
-  <example name="di-testing">
-    ```php
-    // Tests - container supports bind() for mocks
-    $container = new Container();
-    $container->bind(SshService::class, $mockSSH);
-    $command = $container->build(ServerAddCommand::class);
-    ```
-  </example>
+### Example: DI Production
 
-  <example name="exception-service">
-    ```php
-    // Service - complete message with context
-    throw new \RuntimeException("SSH key does not exist: {$privateKeyPath}");
-    throw new \RuntimeException("Server '{$name}' already exists");
+```php
+// Production - use container for all object creation except DTOs
+$service = $this->container->build(MyService::class);
+```
 
-    // Preserve exception chain when wrapping
-    } catch (\Throwable $e) {
-        throw new \RuntimeException(
-            "SSH authentication failed for {$username}@{$host}. Check username and key permissions",
-            previous: $e
-        );
-    }
-    ```
+### Example: DI Testing
 
-  </example>
+```php
+// Tests - container supports bind() for mocks
+$container = new Container();
+$container->bind(SshService::class, $mockSSH);
+$command = $container->build(ServerAddCommand::class);
+```
 
-  <example name="exception-command">
-    ```php
-    // Command - display directly, no prefix
-    try {
-        $this->servers->create($server);
-    } catch (\RuntimeException $e) {
-        $this->nay($e->getMessage());  // Already complete
-        return Command::FAILURE;
-    }
-    ```
-  </example>
+### Example: Exception Service
 
-  <example name="exception-wrong">
-    ```php
-    // WRONG - redundant prefix
-    $this->nay('Failed to add server: ' . $e->getMessage());
-    ```
-  </example>
+```php
+// Service - complete message with context
+throw new \RuntimeException("SSH key does not exist: {$privateKeyPath}");
+throw new \RuntimeException("Server '{$name}' already exists");
 
-</examples>
+// Preserve exception chain when wrapping
+} catch (\Throwable $e) {
+    throw new \RuntimeException(
+        "SSH authentication failed for {$username}@{$host}. Check username and key permissions",
+        previous: $e
+    );
+}
+```
 
-<rules>
+### Example: Exception Command
+
+```php
+// Command - display directly, no prefix
+try {
+    $this->servers->create($server);
+} catch (\RuntimeException $e) {
+    $this->nay($e->getMessage());  // Already complete
+    return Command::FAILURE;
+}
+```
+
+### Example: Exception Wrong
+
+```php
+// WRONG - redundant prefix
+$this->nay('Failed to add server: ' . $e->getMessage());
+```
+
+## Rules
 
 - Use `$container->build(ClassName::class)` for all object creation except DTOs/value objects
 - Services throw complete, user-facing exceptions with context
 - Commands display exception messages directly without adding prefixes
 - Preserve exception chain with `previous: $e` when wrapping exceptions
-
-</rules>

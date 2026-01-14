@@ -6,17 +6,15 @@ paths: tests/bats/**
 
 Functional CLI testing using BATS (Bash Automated Testing System) with Lima VMs simulating real servers via SSH. Tests run against multiple Linux distros automatically.
 
-<important>
+> **IMPORTANT**
+>
+> - SUCCESS paths only - no failure-path tests (those belong in PHP unit tests)
+> - BATS must only test NON-INTERACTIVE command paths (Laravel Prompts requires TTY)
+> - Always provide ALL CLI options to skip prompts
 
-- SUCCESS paths only - no failure-path tests (those belong in PHP unit tests)
-- BATS must only test NON-INTERACTIVE command paths (Laravel Prompts requires TTY)
-- Always provide ALL CLI options to skip prompts
+## Context
 
-</important>
-
-<context>
-
-## Testing Philosophy
+### Testing Philosophy
 
 BATS tests are a "test drive around the track" - proving the system works end-to-end with valid inputs.
 
@@ -32,7 +30,7 @@ BATS tests are a "test drive around the track" - proving the system works end-to
 - Timeout-based tests are inherently flaky
 - Integration tests prove the system works; unit tests prove edge cases fail correctly
 
-## Structure
+### Structure
 
 ```text
 tests/bats/
@@ -50,7 +48,7 @@ tests/bats/
 └── server.bats          # Server command tests
 ```
 
-## Multi-Distro Testing
+### Multi-Distro Testing
 
 Tests run against all distros sequentially. Each distro has its own VM and SSH port:
 
@@ -61,7 +59,7 @@ Tests run against all distros sequentially. Each distro has its own VM and SSH p
 | debian12 | 2223 | deployer-test-debian12 |
 | debian13 | 2225 | deployer-test-debian13 |
 
-## Commands
+### Commands
 
 ```bash
 composer bats                    # Run all tests on all distros
@@ -85,7 +83,7 @@ BATS_DEBUG=1 composer bats       # Enable debug output
 - `reset` - Deletes and recreates VMs from scratch (slow, guaranteed fresh)
 - `clean` - Cleans all VM states without stopping them
 
-## Available Helpers
+### Available Helpers
 
 **Assertions:**
 
@@ -120,23 +118,22 @@ BATS_DEBUG=1 composer bats       # Enable debug output
 - `lima_is_running` - Check if VM is running
 - `lima_logs [lines]` - Get VM system logs
 
-## Adding a New Distro
+### Adding a New Distro
 
 1. Create `lima/{distro}.yaml` (copy existing, update image URLs and port)
 2. Add to `DISTRO_PORTS` and `DISTROS` in `run.sh`
 3. Add to `DISTRO_PORTS` in `lib/helpers.bash`
 
-## Dependencies
+### Dependencies
 
 ```bash
 brew install bats-core lima jq
 ```
 
-</context>
+## Examples
 
-<examples>
+### Example: Test Template
 
-  <example name="test-template">
 ```bash
 #!/usr/bin/env bats
 
@@ -151,7 +148,7 @@ load 'lib/inventory'
 # ----
 
 setup() {
-reset_inventory
+    reset_inventory
 }
 
 # ----
@@ -161,7 +158,7 @@ reset_inventory
 # ----
 
 @test "command:name does something" {
-add_test_server
+    add_test_server
 
     run_deployer command:name --option=value
 
@@ -172,11 +169,10 @@ add_test_server
     assert_output_contains "Expected text"
 
 }
+```
 
-````
-  </example>
+### Example: Test Success
 
-  <example name="test-success">
 ```bash
 @test "command succeeds with valid input" {
     add_test_server
@@ -186,11 +182,10 @@ add_test_server
     assert_success_output
     assert_command_replay "command:name"
 }
-````
+```
 
-  </example>
+### Example: Test Empty State
 
-  <example name="test-empty-state">
 ```bash
 @test "command shows info when no servers" {
     reset_inventory
@@ -200,9 +195,9 @@ add_test_server
     assert_output_contains "No servers found"
 }
 ```
-  </example>
 
-  <example name="test-side-effect">
+### Example: Test Side Effect
+
 ```bash
 @test "command creates expected files on remote" {
     add_test_server
@@ -210,16 +205,11 @@ add_test_server
     assert_remote_dir_exists "/home/deployer/sites"
 }
 ```
-  </example>
 
-</examples>
-
-<rules>
+## Rules
 
 - Use `--yes` / `-y` to skip confirmations
 - Use `--force` / `-f` to skip type-to-confirm prompts
 - Input validation and failure-path tests belong in PHP unit tests
 - Each distro has isolated VM instance and SSH port
 - Interactive-only behavior cannot be tested in BATS
-
-</rules>

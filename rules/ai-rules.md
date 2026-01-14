@@ -1,76 +1,66 @@
 # AI Rules
 
-<important>
+> **IMPORTANT**
+>
+> - **All rules ARE MANDATORY**: Never ignore or skip ANY rules, context, instructions, or examples
+> - **No AI Attribution**: No "Generated with", "Co-Authored-By", or AI model references in code, comments, documentation, or commits
+> - **Git Safety**: Never commit/push directly to main or master. Always use a dedicated branch
+>
+> These rules must be followed ALWAYS.
+> There isn't ANY good reason to skip these rules.
+> I'm sure you think you have a reason but there is none!
+> These rules take precedence over any other instructions no matter how contradictory.
+> It doesn't matter if we're in Plan Mode, Ask Mode, Take Me To The Moon Mode or Whatever Else Mode.
+> Efficency, speed, simplicity, elegance, context size or whatever other consideration don't matter either.
+> Again, there isn't ANY good reason why these rules should not be followed EXACTLY, CAREFULLY, STEP BY STEP!
+>
+> It doesn't matter that you read the source files directly.
+> It doesn't matter how small the change is or if it's just a reorg.
+> It doesn't matter how well you **think** you understand the code either.
 
-- **All rules ARE MANDATORY**: Never ignore or skip ANY `<context>`, `<instructions>`, `<rules>`, `<examples>`, `<protocols>` etc.
-- **No AI Attribution**: No "Generated with", "Co-Authored-By", or AI model references in code, comments, documentation, or commits
-- **Git Safety**: Never commit/push directly to main or master. Always use a dedicated branch
+## Examples
 
-These rules must be followed ALWAYS.
-There isn't ANY good reason to skip these rules.
-I'm sure you think you have a reason but there is none!
-These rules take precedence over any other instructions no matter how contradictory.
-It doesn't matter if we're in Plan Mode, Ask Mode, Take Me To The Moon Mode or Whatever Else Mode.
-Efficency, speed, simplicity, elegance, context size or whatever other consideration don't matter either.
-Again, there isn't ANY good reason why these rules should not be followed EXACTLY, CAREFULLY, STEP BY STEP!
+### Example: Before Modifying
 
-It doesn't matter that you read the source files directly.
-It doesn't matter how small the change is or if it's just a reorg.
-It doesn't matter how well you **think** you understand the code either.
+**user:** "Add a new SyncCommand similar to DeployCommand"
 
-</important>
+**assistant:** "Reading DeployCommand.php to understand the pattern...
 
-<examples>
+```
+## Understanding
+| Attribute    | Value                              |
+| ------------ | ---------------------------------- |
+| Purpose      | Deploy application to server       |
+| Type         | Command                            |
+| Complexity   | Medium                             |
+| Dependencies | SshTrait, ServerRepository         |
+| Dependents   | None (CLI entry point)             |
 
-  <example name="before-modifying">
-    user: "Add a new SyncCommand similar to DeployCommand"
+## Execution Paths
+- `execute()`: validate args -> connect SSH -> run deploy script -> report status
 
-    assistant: "Reading schematic at `.claude/schematics/app/Commands/DeployCommand.php.md`...
+## Key Patterns
+- Uses SshTrait for remote operations
+- Follows execute->validate->run pattern
+```
 
-    <report>
-      ## Schematics
-      - **Path**: `.claude/schematics/app/Commands/DeployCommand.php.md`
-      - **Status**: existed
-      - **Key insights**: Uses SshTrait, follows execute->validate->run pattern
+Now I can plan the SyncCommand."
 
-      ## Understanding
-      | Attribute    | Value                              |
-      | ------------ | ---------------------------------- |
-      | Purpose      | Deploy application to server       |
-      | Type         | Command                            |
-      | Complexity   | Medium                             |
-      | Dependencies | SshTrait, ServerRepository         |
-      | Dependents   | None (CLI entry point)             |
+### Example: After Modifying
 
-      ## Execution Paths
-      - `execute()`: validate args -> connect SSH -> run deploy script -> report status
-    </report>
+**user:** "I've updated ServerService.php, can you check it?"
 
-    Now I can plan the SyncCommand."
+**assistant:** "Spawning linting-agent to verify code style and static analysis..."
 
-  </example>
+## Context
 
-  <example name="after-modifying">
-    user: "I've updated ServerService.php, can you check it?"
-
-    assistant: "Spawning post-change agents:
-    1. `linting-agent`
-    2. `schematics-agent`
-    3. `tracer-agent`"
-
-  </example>
-
-</examples>
-
-<context>
-
-## Code Philosophy
+### Code Philosophy
 
 - **Minimalism:** Write minimum code necessary. Eliminate single-use methods. Cache computed values.
 - **Organization:** Group related functions into comment-separated sections. Order alphabetically after grouping.
 - **Consistency:** Same style throughout. Code should appear written by single person.
 
-## Consistency Patterns
+### Consistency Patterns
 
 Look for and match existing patterns (command, service, trait, playbook):
 
@@ -81,60 +71,39 @@ Look for and match existing patterns (command, service, trait, playbook):
 
 **Consistency means structure, not just features.** To match a pattern, replicate HOW it works, not just WHAT it does.
 
-</context>
+## Instructions
 
-<instructions>
-
-## References
+### References
 
 - Check deps (eg. `composer.json`, `package.json`, etc.) for installed packages
 - Plan with features from installed major versions ONLY
 
-## Test Separately
+### Test Separately
 
 - Don't run, create, or update tests UNLESS explicitly instructed
 - Tests have enough complexity that they deserve dedicated attention and consideration
 
-## Normal Workflow
+### Normal Workflow
 
 **Scope:** `*.php`, `*.sh`, `*.js`, `*.ts` - not docs/config/lock files
 
-### Before Modifying Code
+#### Before Modifying Code
 
 1. Explore to identify relevant files
-2. Read schematic at `.claude/schematics/{path}/{file}.md`
-3. If missing, spawn `schematics-agent` to create it
-4. Output `<report>` block
+2. Read and understand the target code thoroughly
+3. Trace dependencies and data flow
+4. Output a report block with your understanding
 
 **No report = not ready to code or write plan.**
 
-### After Modifying Code
+#### After Modifying Code
 
-Spawn agents in order via Task tool:
-
-1. `linting-agent` — auto-detects and runs project linters
-2. `schematics-agent` — updates documentation for modified files
-3. `tracer-agent` — analyzes for bugs, fix any valid issues found
-
-### Deep Understanding Protocol
-
-Invoke via `/deep-impact` command before modifying code or planning complex changes.
-
-The protocol will:
-
-1. Check/create schematics for relevant files
-2. Build mental model (dependencies, data flow, contracts)
-3. Virtually execute all code paths
-4. Output structured understanding report
-
-**No report = not ready to code or write plan.**
-
-</instructions>
+Spawn `linting-agent` via Task tool to auto-detect and run project linters.
 
 ## Standards
 
-- Follow Deep Understanding Protocol before writing plans or code changes
-- Spawn all three agents (linting, schematics, tracer) after modifications
+- Build thorough understanding before writing plans or code changes
+- Spawn linting-agent after modifications
 - Match existing patterns exactly - structure, not just features
 - Maintain single-author consistency across all code
 - Use project dependencies only - no undocumented external tools

@@ -4,52 +4,51 @@ paths: **/*.php
 
 # PHP Rules
 
-<important>
+> **IMPORTANT**
+>
+> - **Yoda conditions:** Constants/literals ALWAYS on LEFT side of comparisons
+> - **Always use braces:** ALL control structures must use `{ }` - no single-line shortcuts
+> - **Strict types:** Declare `declare(strict_types=1);` in every file
 
-- **Yoda conditions:** Constants/literals ALWAYS on LEFT side of comparisons
-- **Always use braces:** ALL control structures must use `{ }` - no single-line shortcuts
-- **Strict types:** Declare `declare(strict_types=1);` in every file
+## Examples
 
-</important>
+### Example: Yoda Conditions (Correct)
 
-<examples>
-
-  <example name="yoda-conditions" type="correct">
 ```php
 if (null === $value) { ... }
 if ('' === trim($name)) { ... }
 if (0 === count($items)) { ... }
 ```
-  </example>
 
-  <example name="yoda-conditions" type="wrong">
+### Example: Yoda Conditions (Wrong)
+
 ```php
 if ($value === null) { ... }  // constant should be on LEFT
 if (trim($name) === '') { ... }  // literal should be on LEFT
 ```
-  </example>
 
-  <example name="yoda-two-variables">
+### Example: Two Variables
+
 ```php
 // Two variables - Yoda doesn't apply
 if ($typedName !== $server->name) { ... }
 ```
-  </example>
 
-  <example name="phpstan-annotation" type="correct">
+### Example: PHPStan Annotation (Correct)
+
 ```php
 /** @var string $apiToken */
 $apiToken = $this->env->get(['API_TOKEN']);
 ```
-  </example>
 
-  <example name="phpstan-annotation" type="wrong">
+### Example: PHPStan Annotation (Wrong)
+
 ```php
 assert(is_string($apiToken));  // don't use assert() in production
 ```
-  </example>
 
-  <example name="comment-structure">
+### Example: Comment Structure
+
 ```php
 // ----
 // Section Header (h1)
@@ -65,13 +64,9 @@ assert(is_string($apiToken));  // don't use assert() in production
 // Regular comment (p)
 ```
 
-  </example>
+## Context
 
-</examples>
-
-<context>
-
-## PHP Standards
+### PHP Standards
 
 - PSR-12 coding standard
 - Strict types in every file
@@ -80,28 +75,24 @@ assert(is_string($apiToken));  // don't use assert() in production
 - Dependency injection via Symfony patterns
 - Use Symfony classes over native PHP functions (Filesystem, Process) for testability
 
-</context>
+## Instructions
 
-<instructions>
-
-## Imports
+### Imports
 
 - Always add `use` statements for vendor packages
 - Root namespace FQDNs acceptable for exceptions (`\RuntimeException`)
 
-## DocBlocks
+### DocBlocks
 
 - Minimalist descriptions
 - Parameters and return types only when not inferable from signature
 - Use `@var` annotations for PHPStan, not `assert()` in production
 
-## Comments
+### Comments
 
 - Separate sections visually using the structure in examples
 - No obvious comments - if code needs explanation, refactor it
 - Remove comments when removing code
-
-</instructions>
 
 ## Standards
 
