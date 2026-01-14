@@ -11,7 +11,7 @@ model: inherit
   </example>
   <example name="push">
     user: "/git push"
-    assistant: "I'll push the branch and create a draft PR on GitHub."
+    assistant: "I'll push the branch and create a PR on GitHub."
   </example>
   <example name="sync">
     user: "/git sync"
@@ -44,7 +44,7 @@ Usage: /git <subcommand>
 
 Subcommands:
   commit  Create branch (if needed) and commits from working tree changes
-  push    Push branch and open draft PR on GitHub
+  push    Push branch and open PR on GitHub
   sync    Rebase sync with remote, update branches, delete gone branches
   ship    Full pipeline: commit → push → merge → sync
 ```
@@ -161,7 +161,7 @@ Create a branch (if on main) and commits based on working tree changes.
 
 ## Subcommand: push
 
-Push branch and open a draft PR on GitHub.
+Push branch and open a PR on GitHub.
 
 <protocol>
 
@@ -184,10 +184,10 @@ Push branch and open a draft PR on GitHub.
   <step name="create-or-report">
     **If PR exists:** Output the existing PR URL and confirm pushed changes are added.
 
-    **If no PR exists:** Create a draft pull request:
+    **If no PR exists:** Create a pull request:
 
     ```bash
-    gh pr create --draft --title "<title>" --body "<body>"
+    gh pr create --title "<title>" --body "<body>"
     ```
 
     **Title:** Use Conventional Commits format matching branch prefix (≤ 72 chars, imperative, no trailing period).
@@ -396,12 +396,6 @@ Complete end-to-end workflow: commit → push → merge → sync.
     Merge the PR:
 
     ```bash
-    # Get PR state
-    gh pr view <number> --json state,isDraft
-
-    # Mark ready if draft
-    gh pr ready <number>
-
     # Merge with admin privileges
     gh pr merge <number> --squash --admin
 
