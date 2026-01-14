@@ -1,7 +1,7 @@
 ---
 description: Triage PR comments by technical validity
 allowed-tools: Bash(gh:*), Task, AskUserQuestion
-model: inherit
+model: haiku
 ---
 
 <examples>
@@ -125,6 +125,7 @@ If a reviewer took time to write a comment, it warrants analysis.
     - **No** → End without replying
 
     If No, end the command.
+
   </step>
 
   <step name="reply-post">
@@ -151,6 +152,7 @@ If a reviewer took time to write a comment, it warrants analysis.
     ````
 
     After all agents complete, report total replies posted.
+
   </step>
 
 </protocol>
@@ -206,15 +208,16 @@ If no actionable comments found, report: "No actionable comments found."
 
 The `pr-comment` agent handles tone transformation. Expect replies to be **light-hearted and collaborative**, never dismissive or critical.
 
-| Verdict | Tone Approach |
-|---------|---------------|
-| **VALID - Implement** | Grateful: "Great catch! You're absolutely right..." |
-| **VALID - Consider** | Appreciative: "Thanks for flagging this! Good point worth considering..." |
-| **PARTIALLY VALID** | Balanced: "You raise a fair point! Part of this checks out..." |
-| **INVALID - Reject** | Friendly: "Thanks for looking at this! After tracing through, it looks like..." |
+| Verdict                  | Tone Approach                                                                       |
+| ------------------------ | ----------------------------------------------------------------------------------- |
+| **VALID - Implement**    | Grateful: "Great catch! You're absolutely right..."                                 |
+| **VALID - Consider**     | Appreciative: "Thanks for flagging this! Good point worth considering..."           |
+| **PARTIALLY VALID**      | Balanced: "You raise a fair point! Part of this checks out..."                      |
+| **INVALID - Reject**     | Friendly: "Thanks for looking at this! After tracing through, it looks like..."     |
 | **INVALID - Subjective** | Respectful: "Appreciate the suggestion! This one comes down to style preference..." |
 
 **Key principles:**
+
 - Always thank the reviewer for their time
 - Use "we" language when discussing fixes
 - Frame disagreements as discoveries, not corrections
@@ -223,12 +226,15 @@ The `pr-comment` agent handles tone transformation. Expect replies to be **light
 ### Example Replies
 
 **VALID - Implement:**
+
 > Great catch! You're right—the null check is missing here. We'll get this fixed.
 
 **INVALID - Reject:**
+
 > Thanks for looking at this! After tracing through the code, it turns out the validation happens upstream in `UserService.php:45`, so we're covered here. Good instinct though!
 
 **INVALID - Subjective:**
+
 > Appreciate the suggestion! This one's more of a style call—we've been following the existing pattern in the codebase, but totally see where you're coming from.
 
 ## Standards
