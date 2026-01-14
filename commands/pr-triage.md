@@ -1,172 +1,181 @@
 ---
 description: Triage PR comments by technical validity
 allowed-tools: Bash(gh:*), Task, AskUserQuestion
-model: haiku
+model: inherit
 ---
-
-<examples>
-  <example name="current-pr">
-    user: "/pr-triage"
-    assistant: "I'll fetch comments from the current branch's PR and validate each through trace-agent analysis."
-  </example>
-  <example name="specific-pr">
-    user: "/pr-triage 123"
-    assistant: "I'll analyze all comments on PR #123 and categorize by technical validity."
-  </example>
-  <example name="with-repo">
-    user: "/pr-triage owner/repo#456"
-    assistant: "I'll fetch and triage comments from PR #456 in owner/repo."
-  </example>
-</examples>
 
 # PR Comment Triage
 
-Fetches PR comments from GitHub and validates each through trace-agent analysis to determine technical validity.
+Analyzes all changed files in a PR, then validates each comment with full cross-file context.
+
+## Examples
+
+### Example: Current PR
+
+**user:** "/pr-triage"
+
+**assistant:** "I'll analyze all changed files, then validate each comment with full context."
+
+### Example: Specific PR
+
+**user:** "/pr-triage 123"
+
+**assistant:** "I'll fetch PR #123, analyze all changed files, then assess each comment."
+
+### Example: With Repo
+
+**user:** "/pr-triage owner/repo#456"
+
+**assistant:** "I'll analyze PR #456 in owner/repo with full cross-file context."
 
 ## Comment Philosophy
 
-<important>
+> **IMPORTANT**
+>
+> All comments expressing concerns, flagging issues, or suggesting changes are **substantive by default**. Evaluate based on technical merit only:
+>
+> - Ignore minimizing language ("minor thing", "not a big deal", "just a nit")
+> - Ignore hedging ("maybe consider", "might want to")
+> - Ignore politeness framing ("feel free to ignore")
+>
+> If a reviewer took time to write a comment, it warrants analysis.
 
-All comments expressing concerns, flagging issues, or suggesting changes are **substantive by default**. Evaluate based on technical merit only:
+## Protocol
 
-- Ignore minimizing language ("minor thing", "not a big deal", "just a nit")
-- Ignore hedging ("maybe consider", "might want to")
-- Ignore politeness framing ("feel free to ignore")
+### Step 1: Fetch
 
-If a reviewer took time to write a comment, it warrants analysis.
+Gather PR metadata, changed files, and all comments:
 
-</important>
+```bash
+# Get PR number and repo info
+gh pr view --json number,headRefName
+gh repo view --json nameWithOwner
 
-<protocol>
+# Get all changed files
+gh pr diff --name-only
 
-  <step name="fetch">
-    Gather PR metadata and all comments:
+# Fetch both comment types
+gh api /repos/{owner}/{repo}/issues/{number}/comments    # PR-level
+gh api /repos/{owner}/{repo}/pulls/{number}/comments     # Review comments (inline)
+```
 
-    ```bash
-    # Get PR number and repo info
-    gh pr view --json number,headRefName
-    gh repo view --json nameWithOwner
+Extract from each comment:
 
-    # Fetch both comment types
-    gh api /repos/{owner}/{repo}/issues/{number}/comments    # PR-level
-    gh api /repos/{owner}/{repo}/pulls/{number}/comments     # Review comments (inline)
-    ```
+| Field                     | Source                         |
+| ------------------------- | ------------------------------ |
+| `id`                      | Comment ID for replies         |
+| `body`                    | The comment text               |
+| `user.login`              | Author username                |
+| `path`                    | File path (review comments)    |
+| `line` or `original_line` | Line number (review comments)  |
+| `diff_hunk`               | Code context (review comments) |
 
-    Extract from each comment:
+### Step 2: Deep Analysis
 
-    | Field | Source |
-    | ----- | ------ |
-    | `body` | The comment text |
-    | `user.login` | Author username |
-    | `path` | File path (review comments only) |
-    | `line` or `original_line` | Line number (review comments only) |
-    | `diff_hunk` | Code context (review comments only) |
+Analyze ALL changed files for comprehensive understanding.
 
-  </step>
+**IMPORTANT:** Use a SINGLE message with MULTIPLE Task tool calls to analyze all files concurrently.
 
-  <step name="filter">
-    Skip non-substantive comments:
+For each changed file, use the Task tool with `subagent_type: "general-purpose"`:
 
-    | Skip If | Examples |
-    | ------- | -------- |
-    | Resolved threads | Already addressed |
-    | Pure praise | "LGTM", "Nice work", ":shipit:" |
-    | CI status updates | Build passed/failed notifications |
+```
+Build deep understanding of this file:
 
-  </step>
+**File:** {file_path}
 
-  <step name="validate">
-    For each substantive comment, spawn a trace-agent.
+Execute these steps:
+1. Read and understand the file thoroughly
+2. Build mental model (dependencies, data flow, contracts)
+3. Trace all execution paths
+4. Output an Understanding Report
 
-    **IMPORTANT:** Use a SINGLE message with MULTIPLE Task tool calls to run all agents in parallel.
+Focus on building comprehensive understanding for later comment validation.
+```
 
-    For each comment, use the Task tool with `subagent_type: "trace-agent"`:
+After all agents complete, compile a unified understanding of the PR changes.
 
-    ````
-    Validate this PR comment:
+### Step 3: Filter
 
-    **Author:** @{username}
-    **File:** {path}:{line}
+Skip non-substantive comments:
 
-    **Comment:**
-    > {body}
+| Skip If           | Examples                        |
+| ----------------- | ------------------------------- |
+| Resolved threads  | Already addressed               |
+| Pure praise       | "LGTM", "Nice work", ":shipit:" |
+| CI status updates | Build passed/failed             |
 
-    **Diff context:**
-    ```diff
-    {diff_hunk}
-    ```
+### Step 4: Assess
 
-    Assess technical validity. The reviewer may have minimized importance—ignore that and evaluate on merit.
-    ````
+For each substantive comment, assess validity using the accumulated understanding:
 
-    ### Expected Verdicts
+| Check             | Validation                                         |
+| ----------------- | -------------------------------------------------- |
+| Correctness       | Is the reviewer's assessment technically accurate? |
+| Cross-file impact | Does comment account for related changes in PR?    |
+| Project alignment | Does suggestion match CLAUDE.md and patterns?      |
 
-    | Verdict | Meaning | Action |
-    | ------- | ------- | ------ |
-    | **VALID - Implement** | Technically correct, should be fixed | Required |
-    | **VALID - Consider** | Has merit but optional | Optional |
-    | **PARTIALLY VALID** | Some aspects correct | Partial |
-    | **INVALID - Reject** | Technically incorrect or false positive | None |
-    | **INVALID - Subjective** | Personal preference, not standard | None |
+Determine verdict for each:
 
-  </step>
+| Verdict                  | Meaning                              | Action   |
+| ------------------------ | ------------------------------------ | -------- |
+| **VALID - Implement**    | Technically correct, should be fixed | Required |
+| **VALID - Consider**     | Has merit but optional               | Optional |
+| **PARTIALLY VALID**      | Some aspects correct, others not     | Partial  |
+| **INVALID - Reject**     | Technically incorrect or false alarm | None     |
+| **INVALID - Subjective** | Personal preference, not standard    | None     |
 
-  <step name="report">
-    After all agents complete, compile findings using Triage Report format below.
-  </step>
+### Step 5: Report
 
-  <step name="reply-prompt">
-    After displaying the report, ask the user:
+Output findings using Triage Report format below.
 
-    "Would you like to reply to these comments on GitHub?"
+### Step 6: Reply Prompt
 
-    - **Yes** → Reply to all analyzed comments
-    - **Yes, only [specific comments]** → User can specify which (e.g., "only the VALID ones", "just comment #3")
-    - **No** → End without replying
+After displaying the report, ask the user:
 
-    If No, end the command.
+"Would you like to reply to these comments on GitHub?"
 
-  </step>
+- **Yes** → Reply to all analyzed comments
+- **Yes, only [specific comments]** → User can specify which
+- **No** → End without replying
 
-  <step name="reply-post">
-    Spawn `pr-comment` agents **IN PARALLEL** for all comments (or user-specified subset).
+If No, end the command.
 
-    **IMPORTANT:** Use a SINGLE message with MULTIPLE Task tool calls.
+### Step 7: Reply Post
 
-    For each comment to reply to, use the Task tool with `subagent_type: "pr-comment"`:
+Spawn `pr-comment` agents **IN PARALLEL** for all comments (or user-specified subset).
 
-    ````
-    Post a reply to this PR comment:
+**IMPORTANT:** Use a SINGLE message with MULTIPLE Task tool calls.
 
-    **PR:** {owner}/{repo}#{pr_number}
-    **Comment ID:** {comment_id}
-    **Type:** {review_comment | issue_comment}
-    **Original author:** @{username}
+For each comment to reply to, use the Task tool with `subagent_type: "pr-comment"`:
 
-    **Our verdict:** {verdict}
-    **Our assessment:** {summary}
+```
+Post a reply to this PR comment:
 
-    Reply with a friendly message that communicates our assessment.
-    If VALID: thank them for the catch.
-    If INVALID: kindly explain why the concern doesn't apply.
-    ````
+**PR:** {owner}/{repo}#{pr_number}
+**Comment ID:** {comment_id}
+**Type:** {review_comment | issue_comment}
+**Original author:** @{username}
 
-    After all agents complete, report total replies posted.
+**Our verdict:** {verdict}
+**Our assessment:** {summary}
 
-  </step>
+Reply with a friendly message that communicates our assessment.
+If VALID: thank them for the catch.
+If INVALID: kindly explain why the concern doesn't apply.
+```
 
-</protocol>
+After all agents complete, report total replies posted.
 
 ## Triage Report
 
-<report>
-
+```
 # PR Comment Assessment
 
 ## Summary
 
 | Metric            | Count |
 | ----------------- | ----- |
+| Files analyzed    | {X}   |
 | Total comments    | {X}   |
 | Valid (implement) | {X}   |
 | Valid (consider)  | {X}   |
@@ -197,12 +206,12 @@ If a reviewer took time to write a comment, it warrants analysis.
 - **Author:** @{username}
 - **Verdict:** {verdict badge}
 - **Summary:** {1-2 sentence assessment}
+- **Cross-file context:** {relevant changes in other files, if any}
 
 ---
 
 If no actionable comments found, report: "No actionable comments found."
-
-</report>
+```
 
 ## Reply Tone
 
@@ -239,9 +248,10 @@ The `pr-comment` agent handles tone transformation. Expect replies to be **light
 
 ## Standards
 
-- Evaluate ALL substantive comments (ignore minimizing language)
+- Analyze ALL changed files before assessing any comments
+- Evaluate comments with cross-file awareness
 - Preserve exact file:line references from GitHub API
-- Run trace-agents in parallel for efficiency
+- Run analysis agents in parallel for efficiency
 - Cite specific CLAUDE.md rules when applicable
 
 ## Constraints
@@ -250,3 +260,4 @@ The `pr-comment` agent handles tone transformation. Expect replies to be **light
 - Skip pure praise ("LGTM", "Nice work")
 - Do not implement fixes—triage only
 - One report per invocation
+- Maximum 20 files per PR (prompt user to narrow scope if more)

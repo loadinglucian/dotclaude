@@ -6,19 +6,17 @@ paths: playbooks/**
 
 Playbooks are idempotent, non-interactive bash scripts that execute server tasks remotely. They receive context via environment variables and return YAML output. Bash style: <https://style.ysap.sh/md>
 
-<important>
+> **IMPORTANT**
+>
+> - Shebang `#!/usr/bin/env bash` always first line
+> - `set -o pipefail` (NEVER use `set -e`)
+> - `export DEBIAN_FRONTEND=noninteractive`
+> - Validate ALL `DEPLOYER_*` variables before any work
+> - NEVER use `eval`
 
-- Shebang `#!/usr/bin/env bash` always first line
-- `set -o pipefail` (NEVER use `set -e`)
-- `export DEBIAN_FRONTEND=noninteractive`
-- Validate ALL `DEPLOYER_*` variables before any work
-- NEVER use `eval`
+## Context
 
-</important>
-
-<context>
-
-## Environment Variables
+### Environment Variables
 
 All variables use `DEPLOYER_` prefix:
 
@@ -26,7 +24,7 @@ All variables use `DEPLOYER_` prefix:
 - `DEPLOYER_DISTRO` - Distribution: `ubuntu|debian`
 - `DEPLOYER_PERMS` - Permissions: `root|sudo|none`
 
-## Available Helpers
+### Available Helpers
 
 These are automatically inlined from `helpers.sh`. Never manually inline helpers into playbook files.
 
@@ -42,7 +40,7 @@ These are automatically inlined from `helpers.sh`. Never manually inline helpers
 
 See `playbooks/server-info.sh` for a simple example.
 
-## Guaranteed System Tools
+### Guaranteed System Tools
 
 These tools are installed by `base-install.sh` and available in all playbooks without existence checks:
 
@@ -59,7 +57,7 @@ These tools are installed by `base-install.sh` and available in all playbooks wi
 
 Do NOT add `command -v` checks for these tools - they are guaranteed on provisioned servers.
 
-## Bash Style Rules
+### Bash Style Rules
 
 **Conditionals:** `[[ ... ]]` not `[ ... ]`
 
@@ -79,7 +77,7 @@ Do NOT add `command -v` checks for these tools - they are guaranteed on provisio
 
 **Formatting:** Tabs for indentation, max 80 columns, max 1 blank line between sections
 
-## Code Organization
+### Code Organization
 
 - Section comments: `# ----` + `# Section Name` + `# ----`
 - Function comments: `#` + blank + `# Description`
@@ -87,7 +85,7 @@ Do NOT add `command -v` checks for these tools - they are guaranteed on provisio
 - Order functions alphabetically within sections
 - Place `main()` at the bottom
 
-## Credential Generation
+### Credential Generation
 
 | Service Type | Username Pattern | Example         |
 | ------------ | ---------------- | --------------- |
@@ -97,7 +95,7 @@ Do NOT add `command -v` checks for these tools - they are guaranteed on provisio
 
 Use `openssl rand -base64 24` for secure passwords.
 
-## Service Logging
+### Service Logging
 
 **Systemd services:** Automatic journalctl integration - no configuration needed.
 
@@ -109,7 +107,7 @@ Use `openssl rand -base64 24` for secure passwords.
 | Subdirectory   | `/var/log/{service}/*.log`          |
 | Per-site       | `/var/log/{service}/{domain}-*.log` |
 
-## Log Rotation
+### Log Rotation
 
 Default to built-in rotation. Only create custom configs when:
 
@@ -122,11 +120,10 @@ Default to built-in rotation. Only create custom configs when:
 | `copytruncate` | Service keeps file handles open (Supervisor)     |
 | `postrotate`   | Service supports signal/reload for log reopening |
 
-</context>
+## Examples
 
-<examples>
+### Example: Playbook Structure
 
-  <example name="playbook-structure">
 ```bash
 #!/usr/bin/env bash
 
@@ -220,22 +217,20 @@ function_name
 }
 
 main "$@"
+```
 
-````
-  </example>
+### Example: Idempotency Command
 
-  <example name="idempotency-command">
 ```bash
 # Command existence
 if ! command -v nginx >/dev/null 2>&1; then
     echo "→ Installing Nginx..."
     run_cmd apt-get install -y -q nginx
 fi
-````
+```
 
-  </example>
+### Example: Idempotency Directory
 
-  <example name="idempotency-directory">
 ```bash
 # Directory existence
 if ! run_cmd test -d /var/www/app; then
@@ -243,9 +238,9 @@ if ! run_cmd test -d /var/www/app; then
     run_cmd mkdir -p /var/www/app
 fi
 ```
-  </example>
 
-  <example name="idempotency-file">
+### Example: Idempotency File
+
 ```bash
 # File existence
 if ! run_cmd test -f "$config_file"; then
@@ -255,9 +250,9 @@ if ! run_cmd test -f "$config_file"; then
     EOF
 fi
 ```
-  </example>
 
-  <example name="idempotency-marker">
+### Example: Idempotency Marker
+
 ```bash
 # Config content marker
 if ! grep -q "DEPLOYER-MARKER" /etc/config 2>/dev/null; then
@@ -265,25 +260,25 @@ if ! grep -q "DEPLOYER-MARKER" /etc/config 2>/dev/null; then
     # modify config
 fi
 ```
-  </example>
 
-  <example name="idempotency-service">
+### Example: Idempotency Service
+
 ```bash
 # Service state
 if ! systemctl is-enabled --quiet service 2>/dev/null; then
     run_cmd systemctl enable --quiet service
 fi
 ```
-  </example>
 
-  <example name="error-validation">
+### Example: Error Validation
+
 ```bash
 # Validation errors → stdout, then exit
 [[ -z $DEPLOYER_VAR ]] && echo "Error: DEPLOYER_VAR required" && exit 1
 ```
-  </example>
 
-  <example name="error-runtime">
+### Example: Error Runtime
+
 ```bash
 # Runtime errors → stderr, then exit
 if ! run_cmd mkdir -p /var/www/app 2>&1; then
@@ -298,11 +293,10 @@ cd /path || exit
 # Using fail helper
 
 run_cmd chown deployer:deployer /path || fail "Failed to set ownership"
+```
 
-````
-  </example>
+### Example: Action Message (Correct)
 
-  <example name="action-message-correct">
 ```bash
 # CORRECT - Explicit paths/names/versions
 echo "→ Creating /var/www/app directory..."
@@ -314,19 +308,18 @@ if ! command -v nginx >/dev/null 2>&1; then
     echo "→ Installing Nginx..."
     run_cmd apt-get install -y -q nginx
 fi
-````
+```
 
-  </example>
+### Example: Action Message (Wrong)
 
-  <example name="action-message-wrong">
 ```bash
 # WRONG - Generic messages
 echo "→ Creating directory..."
 echo "→ Installing package..."
 ```
-  </example>
 
-  <example name="distribution-branch">
+### Example: Distribution Branch
+
 ```bash
 # When distributions differ
 case $DEPLOYER_DISTRO in
@@ -342,19 +335,17 @@ esac
 
 run_cmd apt-get update -q
 apt_get_with_retry install -y -q "${packages[@]}"
+```
 
-````
-  </example>
+### Example: Non-Interactive Apt
 
-  <example name="non-interactive-apt">
 ```bash
 # Adding a repository key (non-interactive)
 curl -fsSL https://example.com/key.gpg | gpg --batch --yes --dearmor -o /etc/apt/keyrings/example.gpg
-````
+```
 
-  </example>
+### Example: User Script
 
-  <example name="user-script">
 ```bash
 #
 # Execute user script if it exists
@@ -364,7 +355,7 @@ curl -fsSL https://example.com/key.gpg | gpg --batch --yes --dearmor -o /etc/apt
 #   $2 - Script description (for error messages)
 
 run_user_script() {
-local script_path=$1
+    local script_path=$1
     local script_desc=${2:-script}
 
     if [[ ! -f $script_path ]]; then
@@ -387,11 +378,10 @@ local script_path=$1
 # Usage
 
 run_user_script "${RELEASE_PATH}/.deployer/hooks/1-building.sh" "1-building.sh hook"
+```
 
-````
-  </example>
+### Example: YAML Output Simple
 
-  <example name="yaml-output-simple">
 ```bash
 # Simple success
 if ! cat > "$DEPLOYER_OUTPUT_FILE" <<- EOF; then
@@ -400,11 +390,10 @@ EOF
     echo "Error: Failed to write output file" >&2
     exit 1
 fi
-````
+```
 
-  </example>
+### Example: YAML Output Data
 
-  <example name="yaml-output-data">
 ```bash
 # With additional data
 if ! cat > "$DEPLOYER_OUTPUT_FILE" <<- EOF; then
@@ -416,9 +405,9 @@ EOF
     exit 1
 fi
 ```
-  </example>
 
-  <example name="credential-generation">
+### Example: Credential Generation
+
 ```bash
 main() {
     local db_user="deployer"
@@ -437,11 +426,10 @@ main() {
     fi
 
 }
+```
 
-````
-  </example>
+### Example: Logrotate Config
 
-  <example name="logrotate-config">
 ```bash
 # Per-supervisor-program logrotate config
 local logrotate_file="${LOGROTATE_DIR}/supervisor-${domain}-${program}.conf"
@@ -461,11 +449,10 @@ EOF
     echo "Error: Failed to write ${logrotate_file}" >&2
     exit 1
 fi
-````
+```
 
-  </example>
+### Example: Log Directory
 
-  <example name="log-directory">
 ```bash
 if [[ ! -d /var/log/myservice ]]; then
     echo "→ Creating /var/log/myservice directory..."
@@ -473,11 +460,8 @@ if [[ ! -d /var/log/myservice ]]; then
     run_cmd chown myservice:myservice /var/log/myservice
 fi
 ```
-  </example>
 
-</examples>
-
-<rules>
+## Rules
 
 - ALWAYS check before acting (idempotency)
 - Validation errors → stdout; Runtime errors → stderr
@@ -489,5 +473,3 @@ fi
 - Document credential returns in playbook header
 - Create logrotate configs at resource creation time, not base installation
 - Remove logrotate configs when removing resources (orphan cleanup)
-
-</rules>

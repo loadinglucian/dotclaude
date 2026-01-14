@@ -6,74 +6,73 @@ paths: docs/**/*.md
 
 Rules for writing user documentation following Laravel's documentation style.
 
-<important>
+> **IMPORTANT**
+>
+> - **Reader-first**: Every sentence should help the reader accomplish their goal
+> - **Active voice**: Use "you" to address the reader directly (~95% of sentences)
+> - **Explain why before how**: Context precedes implementation details
+> - **Simple to complex**: Start with basic usage, then layer in advanced features
 
-- **Reader-first**: Every sentence should help the reader accomplish their goal
-- **Active voice**: Use "you" to address the reader directly (~95% of sentences)
-- **Explain why before how**: Context precedes implementation details
-- **Simple to complex**: Start with basic usage, then layer in advanced features
+## Examples
 
-</important>
+### Example: Opening Problem-Solution
 
-<examples>
-
-  <example name="opening-problem-solution">
 ```markdown
 While building your web application, you may have some tasks that take too long
 to perform during a typical web request. Thankfully, Laravel allows you to
 easily create queued jobs that may be processed in the background.
 ```
-  </example>
 
-  <example name="opening-conceptual">
+### Example: Opening Conceptual
+
 ```markdown
 Migrations are like version control for your database, allowing your team to
 define and share the application's database schema definition.
 ```
-  </example>
 
-  <example name="opening-feature">
+### Example: Opening Feature
+
 ```markdown
 Laravel includes Eloquent, an object-relational mapper (ORM) that makes it
 enjoyable to interact with your database. When using Eloquent, each database
 table has a corresponding "Model" that is used to interact with that table.
 ```
-  </example>
 
-  <example name="convention-explanation">
+### Example: Convention Explanation
+
 ```markdown
 After glancing at the example above, you may have noticed that we did not
 tell Eloquent which database table corresponds to our `Flight` model. By
 convention, the "snake case", plural name of the class will be used as the
 table name unless another name is explicitly specified.
 ```
-  </example>
 
-  <example name="quickstart-intro">
+### Example: Quickstart Intro
+
 ```markdown
 To learn about Laravel's powerful validation features, let's look at a
 complete example of validating a form and displaying the error messages
 back to the user. By reading this high-level overview, you'll be able to
 gain a good general understanding of how to validate incoming request data.
 ```
-  </example>
 
-  <example name="permissive-language">
+### Example: Permissive Language
+
 ```markdown
 You may use the `route:list` Artisan command to view all routes.
 You are free to organize your application however you like.
 ```
-  </example>
 
-  <example name="reassurance-pattern">
+### Example: Reassurance Pattern
+
 ```markdown
 As you can see, the validation rules are passed into the `validate` method.
 Don't worry - all available validation rules are documented. Again, if the
 validation fails, the proper response will automatically be generated.
 ```
-  </example>
 
-  <example name="code-progression">
+### Example: Code Progression
+
 ```php
 // SIMPLE - Basic usage
 Route::get('/greeting', function () {
@@ -88,36 +87,33 @@ Route::match(['get', 'post'], '/', function () {
     // ...
 });
 ```
-  </example>
 
-  <example name="alternatives-transition">
+### Example: Alternatives Transition
+
 ```markdown
 Alternatively, validation rules may be specified as arrays instead of a
 single `|` delimited string:
 ```
-  </example>
 
-  <example name="callout-note">
+### Example: Callout Note
+
 ```markdown
 > [!NOTE]
 > Blade's `{{ }}` echo statements are automatically sent through PHP's
 > `htmlspecialchars` function to prevent XSS attacks.
 ```
-  </example>
 
-  <example name="callout-warning">
+### Example: Callout Warning
+
 ```markdown
 > [!WARNING]
 > Be very careful when echoing content that is supplied by users of your
 > application. You should typically use the escaped syntax to prevent attacks.
 ```
-  </example>
 
-</examples>
+## Context
 
-<context>
-
-## Voice & Tone
+### Voice & Tone
 
 | Aspect      | Pattern                                                            |
 | ----------- | ------------------------------------------------------------------ |
@@ -130,9 +126,9 @@ single `|` delimited string:
 
 **Contractions:** Use `let's`, `you'll`, `it's`, `don't`, `we'll`, `won't`, `can't` freely. This creates an approachable, conversational tone.
 
-## Phrase Reference Tables
+### Phrase Reference Tables
 
-### Permission & Capability
+#### Permission & Capability
 
 | Category    | Phrases                                                                       |
 | ----------- | ----------------------------------------------------------------------------- |
@@ -141,7 +137,7 @@ single `|` delimited string:
 | Flexibility | "you may even", "you may also", "you may optionally"                          |
 | Enablement  | "makes it enjoyable to", "provides a simple way to", "gives you full control" |
 
-### Defaults & Conventions
+#### Defaults & Conventions
 
 | Category    | Phrases                                                                  |
 | ----------- | ------------------------------------------------------------------------ |
@@ -151,7 +147,7 @@ single `|` delimited string:
 | Location    | "is stored in your application's `config/X.php` configuration file"      |
 | Discovery   | "In this file, you will find...", "you may have noticed that..."         |
 
-### Process & Transitions
+#### Process & Transitions
 
 | Category     | Phrases                                                                        |
 | ------------ | ------------------------------------------------------------------------------ |
@@ -162,7 +158,7 @@ single `|` delimited string:
 | Deep dive    | "To get a better understanding of X, let's jump back into..."                  |
 | Rhetorical   | "So, what if...?" (to introduce edge cases or next concepts)                   |
 
-### Emphasis & Reassurance
+#### Emphasis & Reassurance
 
 | Category      | Phrases                                                              |
 | ------------- | -------------------------------------------------------------------- |
@@ -171,7 +167,7 @@ single `|` delimited string:
 | Prerequisites | "Before getting started...", "be sure to configure..."               |
 | Reminder      | "Remember, any...", "Keep in mind that..."                           |
 
-### Technical Descriptions
+#### Technical Descriptions
 
 | Category     | Phrases                                                               |
 | ------------ | --------------------------------------------------------------------- |
@@ -180,11 +176,9 @@ single `|` delimited string:
 | Conceptual   | "may be thought of as", "which can be thought of as"                  |
 | Benefit      | "meaning...", "allowing your application to...", "so that you can..." |
 
-</context>
+## Instructions
 
-<instructions>
-
-## Document Structure
+### Document Structure
 
 Every documentation file follows this structure:
 
@@ -225,7 +219,7 @@ For feature documentation, include a "Quickstart" section early:
 
 This provides a complete working example before diving into individual features.
 
-## Introduction Patterns
+### Introduction Patterns
 
 Three standard opening approaches:
 
@@ -251,9 +245,9 @@ Pattern: `[Feature] is like [familiar concept], allowing [benefit].`
 
 Pattern: `[Product] includes [feature], [descriptor] that [benefit].`
 
-## Writing Patterns
+### Writing Patterns
 
-### Convention Explanations
+#### Convention Explanations
 
 When explaining default behavior:
 
@@ -270,7 +264,7 @@ Follow with code showing how to override:
 > you may manually specify the model's table name by defining a `table`
 > property on the model.
 
-### Prose Guidelines
+#### Prose Guidelines
 
 **Sentence structure:**
 
@@ -311,7 +305,7 @@ Follow with code showing how to override:
 - "Don't worry - all available X are [documented](#link)."
 - "Again, if validation fails..."
 
-## Code Examples
+### Code Examples
 
 **Language annotations:**
 
@@ -370,7 +364,7 @@ Or in PHP:
 - Use transition: "Alternatively..." or "Or, you may..."
 - Explain when to use each approach
 
-## Cross-References
+### Cross-References
 
 Link to related documentation using these patterns:
 
@@ -388,7 +382,7 @@ Link to related documentation using these patterns:
 > application's `config/database.php` configuration file. For more information
 > on configuring your database, check out [the database configuration documentation](/docs/{{version}}/database#configuration).
 
-## Callouts
+### Callouts
 
 **NOTE** - Additional helpful information:
 
@@ -406,7 +400,7 @@ Link to related documentation using these patterns:
 
 Use callouts sparingly - one or two per major section maximum.
 
-## Technical Explanations
+### Technical Explanations
 
 **Layer from simple to complex:**
 
@@ -421,7 +415,7 @@ Use callouts sparingly - one or two per major section maximum.
 - "Guards define how users are authenticated"
 - "Middleware can be thought of as layers HTTP requests pass through"
 
-## Docs Workflow
+### Docs Workflow
 
 **Scope:** `docs/**/*.md` files only
 
@@ -436,8 +430,6 @@ Use callouts sparingly - one or two per major section maximum.
 | No lock file        | `bunx prettier --write "docs/**/*.md"`     |
 
 Fix any formatting issues before committing.
-
-</instructions>
 
 ## Standards
 

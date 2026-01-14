@@ -4,7 +4,8 @@ paths: tests/**/*.php
 
 # PEST Testing RULES
 
-<context>
+## Context
+
 Tests verify behavior using Pest PHP `it()` syntax. AAA pattern. Business logic over type checking.
 
 **Philosophy:** "A test that never fails is not a test, it's a lie."
@@ -17,11 +18,11 @@ Tests verify behavior using Pest PHP `it()` syntax. AAA pattern. Business logic 
 composer pest                 # Full suite with coverage (parallel)
 vendor/bin/pest $TEST_FILE    # Specific file
 ```
-</context>
 
-<examples>
+## Examples
 
-<example name="file-structure">
+### Example: File Structure
+
 ```php
 <?php
 
@@ -50,9 +51,9 @@ it('throws when invalid input', function () {
         ->toThrow(InvalidArgumentException::class, 'Expected message');
 });
 ```
-</example>
 
-<example name="aaa-pattern">
+### Example: AAA Pattern
+
 ```php
 it('calculates total with tax', function () {
     // ARRANGE
@@ -66,9 +67,9 @@ it('calculates total with tax', function () {
     expect($total)->toBe(165.0);
 });
 ```
-</example>
 
-<example name="exception-test">
+### Example: Exception Test
+
 ```php
 it('throws on negative price', function () {
     $calculator = new PriceCalculator();
@@ -78,25 +79,25 @@ it('throws on negative price', function () {
         ->toThrow(InvalidArgumentException::class);
 });
 ```
-</example>
 
-<example name="naming" type="correct">
+### Example: Naming (Correct)
+
 ```php
 it('returns empty array when no servers configured')
 it('throws when SSH connection fails')
 it('creates deploy key with correct permissions')
 ```
-</example>
 
-<example name="naming" type="wrong">
+### Example: Naming (Wrong)
+
 ```php
 it('test1')
 it('works')
 it('should return correct value')
 ```
-</example>
 
-<example name="unit-test-di">
+### Example: Unit Test DI
+
 ```php
 it('parses config correctly', function () {
     $mockFs = mock(FilesystemInterface::class);
@@ -108,9 +109,9 @@ it('parses config correctly', function () {
     expect($result)->toBe(['key' => 'value']);
 });
 ```
-</example>
 
-<example name="command-test-di">
+### Example: Command Test DI
+
 ```php
 it('adds server successfully', function () {
     $mockSSH = mock(SSHService::class);
@@ -122,9 +123,9 @@ it('adds server successfully', function () {
     // Test command execution
 });
 ```
-</example>
 
-<example name="datasets">
+### Example: Datasets
+
 ```php
 it('validates server names', function (string $name, bool $valid) {
     $validator = new ServerValidator();
@@ -138,9 +139,9 @@ it('validates server names', function (string $name, bool $valid) {
     'empty string' => ['', false],
 ]);
 ```
-</example>
 
-<example name="assertion-chaining" type="correct">
+### Example: Assertion Chaining (Correct)
+
 ```php
 expect($server)
     ->name->toBe('web1')
@@ -149,17 +150,17 @@ expect($server)
     ->and($server)
     ->port->toBe(22);
 ```
-</example>
 
-<example name="assertion-chaining" type="wrong">
+### Example: Assertion Chaining (Wrong)
+
 ```php
 expect($server->name)->toBe('web1');
 expect($server->host)->toBe('192.168.1.1');
 expect($server->port)->toBe(22);
 ```
-</example>
 
-<example name="mocking">
+### Example: Mocking
+
 ```php
 it('calls external service', function () {
     $mock = mock(ExternalService::class);
@@ -174,9 +175,9 @@ it('calls external service', function () {
     expect($result)->toBe('processed');
 });
 ```
-</example>
 
-<example name="arch-test">
+### Example: Arch Test
+
 ```php
 arch('commands extend BaseCommand', function () {
     expect('Deployer\\Console\\')
@@ -191,31 +192,28 @@ arch('services are final', function () {
         ->toBeFinal();
 });
 ```
-</example>
 
-</examples>
+## Instructions
 
-<instructions>
-
-## AAA Pattern
+### AAA Pattern
 
 - Every test follows Arrange-Act-Assert
 - Use `// ARRANGE`, `// ACT`, `// ASSERT` comments
 - Exception tests: use `// ACT & ASSERT` when act triggers assertion
 
-## Test Naming
+### Test Naming
 
 - Use descriptive `it()` statements that read as sentences
 - Describe behavior, not implementation
 
-## Dependency Injection
+### Dependency Injection
 
 DI rules apply to PRODUCTION code, not tests.
 
 - **Unit tests:** Manual instantiation with mocks
 - **Command tests:** Container with mock bindings via `mockCommandContainer()`
 
-## Minimalism
+### Minimalism
 
 **Target:** Test files under 1.8x source code size.
 
@@ -226,7 +224,7 @@ DI rules apply to PRODUCTION code, not tests.
 - Mock external dependencies only
 - **Don't consolidate:** Different public methods, exception vs normal flow, distinct business logic
 
-## Forbidden Patterns
+### Forbidden Patterns
 
 ```php
 // Type-only checks (prove nothing about behavior)
@@ -242,7 +240,7 @@ sleep(1);
 usleep(1000);
 ```
 
-## Required Patterns
+### Required Patterns
 
 ```php
 // Verify actual values
@@ -255,7 +253,7 @@ $mock->shouldReceive('method')->with('param')->andReturn('result');
 $service->waitForReady('id', timeout: 10, pollInterval: 0);
 ```
 
-## Mock Patterns
+### Mock Patterns
 
 ```php
 $mock->shouldReceive('method')->andReturn('value');
@@ -270,7 +268,7 @@ $mock->shouldReceive('method')->with(Mockery::any());
 $mock->shouldReceive('method')->with(Mockery::type('string'));
 ```
 
-## Test Types
+### Test Types
 
 | Layer             | Test Type   |
 | ----------------- | ----------- |
@@ -278,23 +276,21 @@ $mock->shouldReceive('method')->with(Mockery::type('string'));
 | Business Services | Unit        |
 | Utilities/Helpers | Unit        |
 
-## Organization
+### Organization
 
 - Use section comments: `// {Section} tests // ----`
 - File naming: `tests/Unit/ServiceNameTest.php` or `tests/Integration/FeatureTest.php`
 - Mirror source structure where practical
 
-## Static Analysis
+### Static Analysis
 
 PHPStan applies to PRODUCTION code, not tests. Focus on functionality over type compliance.
-
-</instructions>
 
 ## Quality Gate
 
 After writing or editing tests:
 
-<report>
+```
 **AAA Pattern:** PASS | FAIL
 **Descriptive Names:** PASS | FAIL
 **No Forbidden Assertions:** PASS | FAIL
@@ -304,4 +300,4 @@ After writing or editing tests:
 **No Test Overlap:** PASS | FAIL
 
 **Proceeding with:** [run tests] | **Blocked by:** [issue to fix]
-</report>
+```

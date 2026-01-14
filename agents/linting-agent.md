@@ -1,28 +1,9 @@
 ---
 name: linting-agent
-description: Runs project-specific linting and formatting tools on changed files. Auto-detects available tools from composer.json and package.json.
+description: "Runs project-specific linting and formatting tools on changed files. Auto-detects available tools from composer.json and package.json.\n\nExamples:\nuser: \"I've updated ServerService.php\"\nassistant: \"I'll use linting-agent to run quality checks on the changed PHP files.\"\n\nuser: \"Run lint on my TypeScript changes\"\nassistant: \"I'll use linting-agent to detect and run available JS/TS linters.\"\n\nuser: \"Lint everything I changed\"\nassistant: \"I'll use linting-agent to detect file types and run appropriate tools.\""
 model: haiku
 color: cyan
 ---
-
-<examples>
-  <example name="php-lint">
-    user: "I've updated ServerService.php"
-    assistant: "I'll use linting-agent to run quality checks on the changed PHP files."
-  </example>
-  <example name="js-lint">
-    user: "Run lint on my TypeScript changes"
-    assistant: "I'll use linting-agent to detect and run available JS/TS linters."
-  </example>
-  <example name="markdown">
-    user: "Check my README changes"
-    assistant: "I'll use linting-agent to lint the markdown files."
-  </example>
-  <example name="all-changes">
-    user: "Lint everything I changed"
-    assistant: "I'll use linting-agent to detect file types and run appropriate tools."
-  </example>
-</examples>
 
 # Linting Agent
 
@@ -37,107 +18,107 @@ Automated quality checker that detects and runs project-specific linting tools.
 | `*.md`                           | Markdown              | markdownlint                               |
 | `playbooks/*.sh`                 | Shell                 | shfmt (via composer bash)                  |
 
-<protocol>
+## Protocol
 
-  <step name="detect">
-    Read config files to build tool inventory:
+### Step 1: Detect
 
-    **For PHP projects** — read `composer.json`:
+Read config files to build tool inventory:
 
-    | Tool | Detection | Command |
-    | ---- | --------- | ------- |
-    | Rector | `require-dev.rector/rector` OR `scripts.rector` | `composer rector` OR `vendor/bin/rector process` |
-    | Pint | `require-dev.laravel/pint` OR `scripts.pint` | `composer pint` OR `vendor/bin/pint` |
-    | PHPStan | `require-dev.phpstan/phpstan` OR `scripts.phpstan` | `composer phpstan` OR `vendor/bin/phpstan analyse --memory-limit=2G` |
-    | PHPMD | `require-dev.phpmd/phpmd` OR `scripts.phpmd` | `composer phpmd` OR `vendor/bin/phpmd` |
-    | PHP-CS-Fixer | `require-dev.friendsofphp/php-cs-fixer` | `vendor/bin/php-cs-fixer fix` |
+**For PHP projects** — read `composer.json`:
 
-    **For JS/TS projects** — read `package.json`:
+| Tool         | Detection                                          | Command                                                              |
+| ------------ | -------------------------------------------------- | -------------------------------------------------------------------- |
+| Rector       | `require-dev.rector/rector` OR `scripts.rector`    | `composer rector` OR `vendor/bin/rector process`                     |
+| Pint         | `require-dev.laravel/pint` OR `scripts.pint`       | `composer pint` OR `vendor/bin/pint`                                 |
+| PHPStan      | `require-dev.phpstan/phpstan` OR `scripts.phpstan` | `composer phpstan` OR `vendor/bin/phpstan analyse --memory-limit=2G` |
+| PHPMD        | `require-dev.phpmd/phpmd` OR `scripts.phpmd`       | `composer phpmd` OR `vendor/bin/phpmd`                               |
+| PHP-CS-Fixer | `require-dev.friendsofphp/php-cs-fixer`            | `vendor/bin/php-cs-fixer fix`                                        |
 
-    | Tool | Detection | Command |
-    | ---- | --------- | ------- |
-    | ESLint | `devDependencies.eslint` OR `scripts.lint` | `{pm} run lint` OR `{pm} eslint` |
-    | Prettier | `devDependencies.prettier` OR `scripts.format` | `{pm} run format` OR `{pm} prettier --write` |
-    | Biome | `devDependencies.@biomejs/biome` | `{pm} biome check --write` |
+**For JS/TS projects** — read `package.json`:
 
-    **For Markdown** — check `package.json`:
+| Tool     | Detection                                      | Command                                      |
+| -------- | ---------------------------------------------- | -------------------------------------------- |
+| ESLint   | `devDependencies.eslint` OR `scripts.lint`     | `{pm} run lint` OR `{pm} eslint`             |
+| Prettier | `devDependencies.prettier` OR `scripts.format` | `{pm} run format` OR `{pm} prettier --write` |
+| Biome    | `devDependencies.@biomejs/biome`               | `{pm} biome check --write`                   |
 
-    | Tool | Detection | Command |
-    | ---- | --------- | ------- |
-    | markdownlint | `devDependencies.markdownlint-cli` OR `scripts.lint:md` | `{pm} run lint:md:fix` |
+**For Markdown** — check `package.json`:
 
-    **For Shell scripts** — check `composer.json`:
+| Tool         | Detection                                               | Command                |
+| ------------ | ------------------------------------------------------- | ---------------------- |
+| markdownlint | `devDependencies.markdownlint-cli` OR `scripts.lint:md` | `{pm} run lint:md:fix` |
 
-    | Tool | Detection | Command |
-    | ---- | --------- | ------- |
-    | shfmt | `scripts.bash` | `composer bash` |
+**For Shell scripts** — check `composer.json`:
 
-    **Package Manager Detection** (`{pm}`):
-    1. `bun.lockb` or `bun.lock` → `bun`
-    2. `pnpm-lock.yaml` → `pnpm`
-    3. `yarn.lock` → `yarn`
-    4. `package-lock.json` → `npm`
-    5. Default → `bun`
+| Tool  | Detection      | Command         |
+| ----- | -------------- | --------------- |
+| shfmt | `scripts.bash` | `composer bash` |
 
-    If no tools detected, report "No linting tools found" and exit gracefully.
+**Package Manager Detection** (`{pm}`):
 
-  </step>
+1. `bun.lockb` or `bun.lock` → `bun`
+2. `pnpm-lock.yaml` → `pnpm`
+3. `yarn.lock` → `yarn`
+4. `package-lock.json` → `npm`
+5. Default → `bun`
 
-  <step name="identify">
-    Determine which files need linting:
+If no tools detected, report "No linting tools found" and exit gracefully.
 
-    ```bash
-    # Get changed files (staged + unstaged + untracked)
-    git status --porcelain | awk '{print $NF}'
+### Step 2: Identify
 
-    # Or from recent commits
-    git diff --name-only main...HEAD
-    ```
+Determine which files need linting:
 
-    Group files by type:
-    - PHP files (`*.php`)
-    - JS/TS files (`*.js`, `*.ts`, `*.jsx`, `*.tsx`)
-    - Markdown files (`*.md`)
-    - Shell scripts (`playbooks/*.sh`)
+```bash
+# Get changed files (staged + unstaged + untracked)
+git status --porcelain | awk '{print $NF}'
 
-    If specific files provided in prompt, use those instead.
+# Or from recent commits
+git diff --name-only main...HEAD
+```
 
-  </step>
+Group files by type:
 
-  <step name="execute">
-    Run detected tools on appropriate files in this order:
+- PHP files (`*.php`)
+- JS/TS files (`*.js`, `*.ts`, `*.jsx`, `*.tsx`)
+- Markdown files (`*.md`)
+- Shell scripts (`playbooks/*.sh`)
 
-    **PHP execution order:**
-    1. Rector (refactoring) — runs on all PHP files
-    2. Pint / PHP-CS-Fixer (formatting) — runs on all PHP files
-    3. PHPMD (mess detection) — runs on all PHP files
-    4. PHPStan (static analysis) — **EXCLUDE test files** (`tests/`, `*Test.php`)
+If specific files provided in prompt, use those instead.
 
-    **JS/TS execution order:**
-    1. ESLint (with --fix if available)
-    2. Prettier (--write mode)
-    3. Biome (--write mode)
+### Step 3: Execute
 
-    **Markdown:**
-    1. markdownlint (--fix mode)
+Run detected tools on appropriate files in this order:
 
-    **Shell:**
-    1. shfmt (via composer bash)
+**PHP execution order:**
 
-    Capture all output from each tool.
+1. Rector (refactoring) — runs on all PHP files
+2. Pint / PHP-CS-Fixer (formatting) — runs on all PHP files
+3. PHPMD (mess detection) — runs on all PHP files
+4. PHPStan (static analysis) — **EXCLUDE test files** (`tests/`, `*Test.php`)
 
-  </step>
+**JS/TS execution order:**
 
-  <step name="report">
-    Output using Lint Report format below.
-  </step>
+1. ESLint (with --fix if available)
+2. Prettier (--write mode)
+3. Biome (--write mode)
 
-</protocol>
+**Markdown:**
+
+1. markdownlint (--fix mode)
+
+**Shell:**
+
+1. shfmt (via composer bash)
+
+Capture all output from each tool.
+
+### Step 4: Report
+
+Output using Lint Report format below.
 
 ## Lint Report
 
-<report>
-
+```
 ## Lint Results
 
 ### Tools Detected
@@ -188,13 +169,12 @@ Automated quality checker that detects and runs project-specific linting tools.
 **Status:** {All checks passed | N issues require attention}
 
 {If errors exist: List blocking issues that need manual fixes}
-
-</report>
+```
 
 ## Standards
 
 - Run tools in fix/write mode by default (auto-fix enabled)
-- Report both what was auto-fixed AND what requires manual attention
+- Report both what was auto-fixed AND what requires manual attention (do not fix manually)
 - Prefer composer/npm scripts over direct binary calls when available
 - Respect project-specific tool configuration (phpstan.neon, .eslintrc, etc.)
 
@@ -205,3 +185,4 @@ Automated quality checker that detects and runs project-specific linting tools.
 - **Do not modify tool configs** — use existing project settings
 - **Exit gracefully if no tools found** — report and skip, don't fail
 - **One report per invocation** — combine results from all tools run
+- **Never manually fix issues** — only run tools and report results; manual fixes are handled by the calling AI

@@ -2,37 +2,35 @@
 paths: .claude/**
 ---
 
-# Prompt Engineering RULES
+# Prompt Engineering Rules
 
 Rules for writing effective prompts based on Anthropic's official documentation.
 
-## XML Structure
+## Document Structure
 
-XML tags are the foundation of structured prompting. They improve parsing accuracy and enable clean output extraction.
+Markdown headers and formatting provide semantic structure that's both human-readable and AI-parseable.
 
 **Core principles:**
 
-- Use semantic tag names (`<instructions>`, `<context>`, `<data>`, not `<tag1>`)
-- Be consistent—same tag names throughout prompt
-- Reference tags explicitly: "Using the data in `<data>` tags..."
-- Nest tags for hierarchy: `<outer><inner></inner></outer>`
+- Use semantic header names (`## Instructions`, `## Context`, not `## Section 1`)
+- Be consistent—same section names throughout the file
+- Reference sections explicitly: "Following the instructions above..."
+- Use header hierarchy for nesting: H2 → H3 → H4
 
-**Standard tags:**
+**Standard sections:**
 
-```xml
-<instructions>   <!-- Task directives -->
-<context>        <!-- Background information -->
-<data>           <!-- Input data to process -->
-<document>       <!-- Long-form content with <source> and <document_content> -->
-<examples>       <!-- Container for multiple <example> tags -->
-<example>        <!-- Single example -->
-<thinking>       <!-- Chain of thought output -->
-<answer>         <!-- Final response -->
-<report>         <!-- Compliance/verification output -->
-<protocol>       <!-- Multi-step execution workflow -->
-<step>           <!-- Named step within protocol (use name attribute) -->
-<important>      <!-- Critical information that must not be ignored -->
-```
+| Section | Purpose |
+|---------|---------|
+| `## Context` | Background information |
+| `## Instructions` | Task directives |
+| `## Examples` | Container for example subsections |
+| `### Example: {name}` | Single named example |
+| `## Protocol` | Multi-step execution workflow |
+| `### Step N: {name}` | Named step within protocol |
+| `## {Name} Report` | Structured output template (as code block) |
+| `## Standards` | Quality requirements |
+| `## Constraints` | Guardrails and limitations |
+| `> **IMPORTANT**` | Critical information blockquote |
 
 ## Information Architecture
 
@@ -47,24 +45,29 @@ Position matters—up to 30% quality improvement in tests.
 5. Instructions
 6. Query/task (ALWAYS last)
 
-```xml
-<context>{{BACKGROUND}}</context>
+```markdown
+## Context
 
-<documents>
-  <document index="1">
-    <source>report.pdf</source>
-    <document_content>{{CONTENT}}</document_content>
-  </document>
-</documents>
+{{BACKGROUND}}
 
-<examples>
-  <example>...</example>
-</examples>
+## Documents
 
-<instructions>
+### Document 1: report.pdf
+
+{{CONTENT}}
+
+## Examples
+
+### Example: Ticket Classification
+
+Input: The dashboard loads slowly
+Category: Performance
+Sentiment: Negative
+
+## Instructions
+
 1. Analyze the documents above
 2. Focus on X, Y, Z
-</instructions>
 
 What are the key findings?  <!-- Query last -->
 ```
@@ -77,41 +80,47 @@ What are the key findings?  <!-- Query last -->
 
 - Relevant: Mirror actual use case
 - Diverse: Cover edge cases, vary enough to avoid unintended pattern matching
-- Clear: Wrapped in `<example>` tags
+- Clear: Each example has its own header
 
-```xml
-<examples>
-  <example>
-    Input: The dashboard loads slowly
-    Category: Performance
-    Sentiment: Negative
-    Priority: High
-  </example>
-  <example>
-    Input: Love the new dark mode!
-    Category: UI/UX
-    Sentiment: Positive
-    Priority: Low
-  </example>
-  <example>
-    Input: Please add Slack integration
-    Category: Feature Request
-    Sentiment: Neutral
-    Priority: Medium
-  </example>
-</examples>
+```markdown
+## Examples
+
+### Example: Performance Issue
+
+Input: The dashboard loads slowly
+Category: Performance
+Sentiment: Negative
+Priority: High
+
+### Example: Positive Feedback
+
+Input: Love the new dark mode!
+Category: UI/UX
+Sentiment: Positive
+Priority: Low
+
+### Example: Feature Request
+
+Input: Please add Slack integration
+Category: Feature Request
+Sentiment: Neutral
+Priority: Medium
 ```
 
-**For code examples:**
+**For code examples with correctness labels:**
 
-```xml
-<example type="correct">
+```markdown
+### Example: Correct DI Usage
+
+```php
 $result = $container->build(Service::class);
-</example>
+```
 
-<example type="wrong">
+### Example: Wrong (Breaks DI)
+
+```php
 $result = new Service(new Dependency());  // breaks DI
-</example>
+```
 ```
 
 ## Chain of Thought
@@ -130,11 +139,11 @@ Think before answering:
 4. Select and justify your recommendation
 ```
 
-**Structured:** Use XML tags for parseable output
+**Structured:** Request specific output sections
 
 ```text
-Think through your analysis in <thinking> tags.
-Then provide your final answer in <answer> tags.
+First explain your reasoning in a "## Thinking" section.
+Then provide your final answer in a "## Answer" section.
 ```
 
 **When to use:** Math, logic, multi-step analysis, complex decisions.
@@ -155,7 +164,10 @@ System: You are a senior security engineer specializing in
 application security for financial services.
 
 User: Review this authentication code for vulnerabilities:
-<code>{{CODE}}</code>
+
+## Code
+
+{{CODE}}
 ```
 
 **Tips:**
@@ -204,10 +216,10 @@ Break complex tasks into subtasks for better accuracy and traceability.
 **Pattern:**
 
 ```text
-Prompt 1: Analyze -> Output in <analysis> tags
-Prompt 2: Using <analysis>, draft -> Output in <draft> tags
-Prompt 3: Review <draft>, provide <feedback>
-Prompt 4: Revise <draft> based on <feedback>
+Prompt 1: Analyze -> Output in "## Analysis" section
+Prompt 2: Using the analysis, draft -> Output in "## Draft" section
+Prompt 3: Review the draft, provide "## Feedback"
+Prompt 4: Revise the draft based on feedback
 ```
 
 **Self-correction chain:**
@@ -223,11 +235,13 @@ Prompt 4: Revise <draft> based on <feedback>
 For long documents, have Claude quote first, then reason.
 
 ```text
-<documents>{{LONG_CONTENT}}</documents>
+## Documents
 
-Find quotes relevant to the user's complaint and place them in
-<quotes> tags. Then, based on these quotes, provide your analysis
-in <analysis> tags.
+{{LONG_CONTENT}}
+
+Find quotes relevant to the user's complaint and list them in a
+"## Relevant Quotes" section. Then, based on these quotes, provide
+your analysis in a "## Analysis" section.
 ```
 
 This reduces hallucination and improves accuracy on long-context tasks.
@@ -277,72 +291,76 @@ logic functionality.
 
 ## Compliance Reports
 
-Require `<report>` output to enforce rule compliance and verification.
+Use report templates in code blocks to enforce rule compliance and verification.
 
-```xml
-<report>
+````markdown
+## Verification Report
+
+```
 **[Constraint]:** PASS | FAIL (value)
 **[Details]:** findings
 
 **Proceeding with:** [next action] | **Blocked by:** [issue]
-</report>
 ```
+````
 
 ## Agent & Command Structure
 
 Template for `.claude/agents/` and `.claude/commands/` files.
 
-### Frontmatter
+### Agent Frontmatter
+
+Agents include usage examples in the description field (matching Anthropic agent builder pattern). Use `\n` for newlines since YAML frontmatter doesn't support literal newlines.
 
 ````yaml
 ---
-name: {agent-name}  # agents only
-description: {One-line description of purpose and when to use}
-allowed-tools: {tool list}  # commands only
+name: {agent-name}
+description: "{Purpose description}\n\nExamples:\nuser: \"{example input}\"\nassistant: \"{expected response}\"\n\nuser: \"{another input}\"\nassistant: \"{another response}\""
 model: inherit
-color: cyan  # agents only
+color: cyan
+---
+````
+
+### Command Frontmatter
+
+Commands have examples in the body (not in description).
+
+````yaml
+---
+description: {One-line description of purpose and when to use}
+allowed-tools: {tool list}
+model: inherit
 ---
 ````
 
 ### Body Structure
 
-````markdown
-<examples>
-  <example name="use-case-1">
-    user: "{invocation}"
-    assistant: "{expected response}"
-  </example>
-  <example name="use-case-2">
-    user: "{invocation}"
-    assistant: "{expected response}"
-  </example>
-</examples>
+**For agents** (examples in frontmatter, not body):
 
+````markdown
 # {Role Title}
 
 {One-line role description}
 
-<protocol>
+## Protocol
 
-  <step name="step-name">
-    {Instructions for this step}
-  </step>
+### Step 1: {Step Name}
 
-  <step name="next-step">
-    {Instructions for next step}
-  </step>
+{Instructions for this step}
 
-  <step name="report">
-    Output using {Report Name} format below.
-  </step>
+### Step 2: {Next Step}
 
-</protocol>
+{Instructions for next step}
+
+### Step 3: Report
+
+Output using {Report Name} format below.
 
 ## {Report Name}
 
-<report>
+```
 {Structured output template with placeholders}
-</report>
+```
 
 ## Standards
 
@@ -355,30 +373,63 @@ color: cyan  # agents only
 - {Guardrail 2}
 ````
 
+**For commands** (include examples in body):
+
+````markdown
+# {Role Title}
+
+{Description}
+
+## Examples
+
+### Example: {Use Case 1}
+
+**user:** "{invocation}"
+
+**assistant:** "{expected response}"
+
+## Protocol
+
+{Same structure as agents...}
+````
+
 ### Protocol Pattern
 
-Use `<protocol>` + `<step>` for multi-step workflows:
+Use `## Protocol` + `### Step N:` for multi-step workflows:
 
-- **`<protocol>`**: Wrapper for entire execution flow
-- **`<step name="...">`**: Named checkpoint (mandatory, not advisory)
+- **`## Protocol`**: Wrapper header for entire execution flow
+- **`### Step N: {Name}`**: Named, numbered checkpoint (mandatory, not advisory)
 - Steps execute sequentially unless specified otherwise
 - Final step should reference report template
 
-```xml
-<protocol>
-  <step name="gather">
-    Collect required information...
-  </step>
-  <step name="analyze">
-    Process the gathered data...
-  </step>
-  <step name="report">
-    Output using Report format below.
-  </step>
-</protocol>
+```markdown
+## Protocol
+
+### Step 1: Gather
+
+Collect required information...
+
+### Step 2: Analyze
+
+Process the gathered data...
+
+### Step 3: Report
+
+Output using Report format below.
 ```
 
-**Why this works:** Named steps create implicit state machines that Claude follows more reliably than markdown headers.
+**Why this works:** Numbered steps with descriptive names create clear execution sequences that Claude follows reliably.
+
+### Important Callouts
+
+Use blockquotes for critical information that must not be ignored:
+
+```markdown
+> **IMPORTANT**
+>
+> - Critical rule 1
+> - Critical rule 2
+```
 
 ## Model Selection
 
@@ -413,7 +464,7 @@ For multi-agent workflows, use the Anthropic-recommended pattern:
 - **Orchestrator**: Sonnet/Opus breaks down the problem
 - **Workers**: Haiku executes parallel subtasks
 
-This matches `pr-triage` → `trace-agent` and `/trace` → `trace-agent` patterns.
+This matches the `pr-triage` pattern where the orchestrator spawns parallel analysis agents.
 
 ### Standards & Constraints
 
@@ -444,23 +495,23 @@ wc -c <file> | awk '{print int($1/4)}'    # Token estimate
 
 ### General Prompts
 
-<report>
-**XML Structure:** PASS | FAIL (are tags semantic and consistent?)
+```
+**Document Structure:** PASS | FAIL (are sections semantic and consistent?)
 **Information Order:** PASS | FAIL (data before query?)
 **Examples:** PASS | FAIL | N/A (3-5 diverse examples if needed?)
 **Clarity:** PASS | FAIL (colleague test—would they understand?)
 
 **Proceeding with:** [action] | **Blocked by:** [issue]
-</report>
+```
 
 ### Agent/Command Files
 
-<report>
+```
 **Frontmatter Examples:** PASS | FAIL (2-3 diverse examples?)
-**Protocol Structure:** PASS | FAIL (`<protocol>` + `<step>` tags?)
-**Report Template:** PASS | FAIL (`<report>` block defined?)
+**Protocol Structure:** PASS | FAIL (## Protocol + ### Step N: pattern?)
+**Report Template:** PASS | FAIL (code block template defined?)
 **Standards Section:** PASS | FAIL (quality bars defined?)
 **Constraints Section:** PASS | FAIL (guardrails defined?)
 
 **Proceeding with:** [action] | **Blocked by:** [issue]
-</report>
+```

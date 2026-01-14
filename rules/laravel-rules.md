@@ -4,19 +4,18 @@ paths: app/**/*.php, routes/**/*.php, database/**/*.php, config/**/*.php, bootst
 
 # Laravel Rules
 
-<important>
+> **IMPORTANT**
+>
+> - **Artisan commands:** Use `php artisan make:` with `--no-interaction` for all file generation
+> - **Eloquent first:** Prefer `Model::query()` over `DB::` facade—leverage ORM, not raw queries
+> - **Form Requests:** Always create Form Request classes for validation, never inline in controllers
+> - **Config access:** Use `config('key')` everywhere—`env()` only allowed inside config files
+> - **Search docs first:** Use `search-docs` tool before making code changes to ensure correct approach
 
-- **Artisan commands:** Use `php artisan make:` with `--no-interaction` for all file generation
-- **Eloquent first:** Prefer `Model::query()` over `DB::` facade—leverage ORM, not raw queries
-- **Form Requests:** Always create Form Request classes for validation, never inline in controllers
-- **Config access:** Use `config('key')` everywhere—`env()` only allowed inside config files
-- **Search docs first:** Use `search-docs` tool before making code changes to ensure correct approach
+## Examples
 
-</important>
+### Example: Eloquent vs DB (Correct)
 
-<examples>
-
-  <example name="eloquent-vs-db" type="correct">
 ```php
 // Eloquent with eager loading (prevents N+1)
 $users = User::query()
@@ -24,9 +23,9 @@ $users = User::query()
     ->where('active', true)
     ->get();
 ```
-  </example>
 
-  <example name="eloquent-vs-db" type="wrong">
+### Example: Eloquent vs DB (Wrong)
+
 ```php
 // Raw DB facade - bypasses ORM benefits
 $users = DB::table('users')
@@ -34,9 +33,9 @@ $users = DB::table('users')
     ->where('active', true)
     ->get();
 ```
-  </example>
 
-  <example name="form-request" type="correct">
+### Example: Form Request (Correct)
+
 ```php
 // Controller using Form Request
 public function store(StoreUserRequest $request): JsonResponse
@@ -57,9 +56,9 @@ class StoreUserRequest extends FormRequest
     }
 }
 ```
-  </example>
 
-  <example name="form-request" type="wrong">
+### Example: Form Request (Wrong)
+
 ```php
 // Inline validation in controller
 public function store(Request $request): JsonResponse
@@ -71,25 +70,25 @@ public function store(Request $request): JsonResponse
     // ...
 }
 ```
-  </example>
 
-  <example name="config-access" type="correct">
+### Example: Config Access (Correct)
+
 ```php
 // In application code
 $appName = config('app.name');
 $apiKey = config('services.stripe.key');
 ```
-  </example>
 
-  <example name="config-access" type="wrong">
+### Example: Config Access (Wrong)
+
 ```php
 // env() outside config files
 $appName = env('APP_NAME');
 $apiKey = env('STRIPE_KEY');
 ```
-  </example>
 
-  <example name="route-naming" type="correct">
+### Example: Route Naming (Correct)
+
 ```php
 // Named routes
 Route::get('/users/{user}', [UserController::class, 'show'])->name('users.show');
@@ -98,9 +97,9 @@ Route::get('/users/{user}', [UserController::class, 'show'])->name('users.show')
 return redirect()->route('users.show', $user);
 $url = route('users.show', ['user' => $user->id]);
 ```
-  </example>
 
-  <example name="model-casts" type="correct">
+### Example: Model Casts (Correct)
+
 ```php
 // Laravel 11+ casts method
 class User extends Model
@@ -115,9 +114,9 @@ class User extends Model
     }
 }
 ```
-  </example>
 
-  <example name="search-docs-usage">
+### Example: Search Docs Usage
+
 ```
 // Use multiple broad queries
 search-docs queries: ['eloquent relationships', 'eager loading', 'N+1']
@@ -126,13 +125,10 @@ search-docs queries: ['eloquent relationships', 'eager loading', 'N+1']
 search-docs query: 'rate limiting'  // correct
 search-docs query: 'laravel rate limiting'  // wrong - redundant
 ```
-  </example>
 
-</examples>
+## Context
 
-<context>
-
-## Laravel 12 Structure
+### Laravel 12 Structure
 
 Laravel 11+ uses a streamlined file structure:
 
@@ -144,12 +140,12 @@ Laravel 11+ uses a streamlined file structure:
 
 **Commands auto-register:** Files in `app/Console/Commands/` are automatically available.
 
-## Bootstrap Files
+### Bootstrap Files
 
 - `bootstrap/app.php` - Register middleware, exceptions, routing files
 - `bootstrap/providers.php` - Application service providers
 
-## Database Migrations
+### Database Migrations
 
 When modifying a column, include ALL previous attributes—missing ones will be dropped:
 
@@ -158,11 +154,9 @@ When modifying a column, include ALL previous attributes—missing ones will be 
 $table->string('name', 100)->nullable()->change();
 ```
 
-</context>
+## Instructions
 
-<instructions>
-
-## Artisan Commands
+### Artisan Commands
 
 - Use `php artisan make:` for controllers, models, migrations, etc.
 - Always pass `--no-interaction` to ensure non-interactive execution
@@ -174,37 +168,38 @@ php artisan make:controller PostController --resource --no-interaction
 php artisan make:request StorePostRequest --no-interaction
 ```
 
-## Database & Eloquent
+### Database & Eloquent
 
 - Use proper relationship methods with return type hints
 - Prevent N+1 with eager loading: `->with(['relation'])`
 - Use `Model::query()` for fluent building, not `DB::`
 - Native eager load limits (Laravel 11+): `$query->latest()->limit(10)`
 
-## Controllers & Validation
+### Controllers & Validation
 
 - Create Form Request classes for all validation
 - Check sibling Form Requests for array vs string rule format
 - Include custom error messages when helpful
 
-## Queues & Jobs
+### Queues & Jobs
 
 - Use `ShouldQueue` interface for time-consuming operations
 - Implement proper job middleware and rate limiting
 
-## Authentication & Authorization
+### Authentication & Authorization
 
 - Use Laravel's built-in features: gates, policies, Sanctum
 - Define policies for model authorization
 
-## URL Generation
+### URL Generation
 
 - Prefer named routes with `route()` function
 - Share URLs with `get-absolute-url` tool for correct scheme/domain/port
 
-## Laravel Boost MCP Tools
+### Laravel Boost MCP Tools
 
-### Documentation Search (Critical)
+#### Documentation Search (Critical)
+
 Use `search-docs` BEFORE making code changes:
 
 ```
@@ -218,18 +213,20 @@ Search syntax:
 - Exact phrase: `"infinite scroll"`
 - Mixed: `middleware "rate limit"`
 
-### Debugging Tools
+#### Debugging Tools
+
 - `tinker` - Execute PHP to debug or query Eloquent
 - `database-query` - Read-only database queries
 - `browser-logs` - Read browser errors (recent logs only)
 - `last-error` - Get last application error
 
-### Other Tools
+#### Other Tools
+
 - `list-artisan-commands` - Verify Artisan command options
 - `get-absolute-url` - Get correct URL with scheme/domain/port
 - `application-info` - Get app configuration details
 
-## Frontend Bundling
+### Frontend Bundling
 
 If Vite manifest errors occur or frontend changes don't appear:
 
@@ -238,8 +235,6 @@ bun run build    # Production build
 bun run dev      # Development server
 composer run dev # Alternative dev command
 ```
-
-</instructions>
 
 ## Standards
 

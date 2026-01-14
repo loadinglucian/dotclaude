@@ -4,28 +4,35 @@ allowed-tools: Bash(git:*), Bash(gh:*)
 model: haiku
 ---
 
-<examples>
-  <example name="commit">
-    user: "/git commit"
-    assistant: "I'll create a branch if on main, then commit all changes with conventional commit messages."
-  </example>
-  <example name="push">
-    user: "/git push"
-    assistant: "I'll push the branch and create a PR on GitHub."
-  </example>
-  <example name="sync">
-    user: "/git sync"
-    assistant: "I'll rebase on upstream, update tracked branches, and delete stale branches."
-  </example>
-  <example name="ship">
-    user: "/git ship"
-    assistant: "I'll commit, push, create/merge PR, and sync—full end-to-end workflow."
-  </example>
-</examples>
-
 # Git Workflow Automation
 
 Handles branch management, commits, PRs, and repository sync with Conventional Commits format.
+
+## Examples
+
+### Example: Commit
+
+**user:** "/git commit"
+
+**assistant:** "I'll create a branch if on main, then commit all changes with conventional commit messages."
+
+### Example: Push
+
+**user:** "/git push"
+
+**assistant:** "I'll push the branch and create a PR on GitHub."
+
+### Example: Sync
+
+**user:** "/git sync"
+
+**assistant:** "I'll rebase on upstream, update tracked branches, and delete stale branches."
+
+### Example: Ship
+
+**user:** "/git ship"
+
+**assistant:** "I'll commit, push, create/merge PR, and sync—full end-to-end workflow."
 
 ## Dispatch
 
@@ -55,90 +62,83 @@ Subcommands:
 
 Create a branch (if on main) and commits based on working tree changes.
 
-<protocol>
+### Step 1: Identify
 
-  <step name="identify">
-    Run `git status` to see:
+Run `git status` to see:
 
-    - Modified files (staged and unstaged)
-    - Untracked files
-    - Deleted files
+- Modified files (staged and unstaged)
+- Untracked files
+- Deleted files
 
-    Read relevant files to understand what changed and group them logically.
+Read relevant files to understand what changed and group them logically.
 
-  </step>
+### Step 2: Branch
 
-  <step name="branch">
-    If on main branch, create a feature branch.
+If on main branch, create a feature branch.
 
-    Use Conventional Commit types as branch prefixes:
+Use Conventional Commit types as branch prefixes:
 
-    | Type | Use Case |
-    | ---- | -------- |
-    | feat/ | New feature |
-    | fix/ | Bug fix |
-    | docs/ | Documentation only |
-    | style/ | Formatting, no logic change |
-    | refactor/ | Code restructure, no behavior change |
-    | perf/ | Performance improvement |
-    | test/ | Adding/updating tests |
-    | build/ | Build system, dependencies |
-    | ci/ | CI/CD configuration |
-    | chore/ | Maintenance tasks |
-    | revert/ | Reverting previous commit |
+| Type      | Use Case                             |
+| --------- | ------------------------------------ |
+| feat/     | New feature                          |
+| fix/      | Bug fix                              |
+| docs/     | Documentation only                   |
+| style/    | Formatting, no logic change          |
+| refactor/ | Code restructure, no behavior change |
+| perf/     | Performance improvement              |
+| test/     | Adding/updating tests                |
+| build/    | Build system, dependencies           |
+| ci/       | CI/CD configuration                  |
+| chore/    | Maintenance tasks                    |
+| revert/   | Reverting previous commit            |
 
-    Keep branch name short (≤ 50 chars) yet informative.
+Keep branch name short (≤ 50 chars) yet informative.
 
-    Examples:
-    - `feat/parser-add-php-84-attributes`
-    - `fix/ci-matrix-php-versions`
-    - `chore/deps-bump-composer-installers-2-3`
+Examples:
 
-    Do not push, pull, or rebase.
+- `feat/parser-add-php-84-attributes`
+- `fix/ci-matrix-php-versions`
+- `chore/deps-bump-composer-installers-2-3`
 
-  </step>
+Do not push, pull, or rebase.
 
-  <step name="commit">
-    Create commits for ALL changes.
+### Step 3: Commit
 
-    **IMPORTANT:** Nothing should be left uncommitted. Group related changes into cohesive commits (each independently meaningful).
+Create commits for ALL changes.
 
-    Use Conventional Commits format:
+**IMPORTANT:** Nothing should be left uncommitted. Group related changes into cohesive commits (each independently meaningful).
 
-    - Keep titles short (≤ 72 chars), imperative, no trailing period
-    - Body (optional): explain motivation, context
-    - Use BREAKING CHANGE: for breaking changes
+Use Conventional Commits format:
 
-    Examples:
-    - `feat(parser): add support for PHP 8.4 attributes`
-    - `fix(ci): correct matrix PHP versions in build workflow`
-    - `chore(deps): bump composer/installers to ^2.3`
+- Keep titles short (≤ 72 chars), imperative, no trailing period
+- Body (optional): explain motivation, context
+- Use BREAKING CHANGE: for breaking changes
 
-  </step>
+Examples:
 
-  <step name="verify">
-    Run `git status` again to confirm:
+- `feat(parser): add support for PHP 8.4 attributes`
+- `fix(ci): correct matrix PHP versions in build workflow`
+- `chore(deps): bump composer/installers to ^2.3`
 
-    - Working tree is clean
-    - No untracked files remain
-    - No modified files remain
+### Step 4: Verify
 
-    If anything is left uncommitted, create additional commits until working tree is clean.
+Run `git status` again to confirm:
 
-    Do not push, pull, or rebase.
+- Working tree is clean
+- No untracked files remain
+- No modified files remain
 
-  </step>
+If anything is left uncommitted, create additional commits until working tree is clean.
 
-  <step name="report">
-    Output using Commit Report format below.
-  </step>
+Do not push, pull, or rebase.
 
-</protocol>
+### Step 5: Report
+
+Output using Commit Report format below.
 
 ### Commit Report
 
-<report>
-
+```
 ## Commit Complete
 
 | Metric        | Value         |
@@ -154,8 +154,7 @@ Create a branch (if on main) and commits based on working tree changes.
 ### Working Tree
 
 {Clean | Issues remaining}
-
-</report>
+```
 
 ---
 
@@ -163,53 +162,46 @@ Create a branch (if on main) and commits based on working tree changes.
 
 Push branch and open a PR on GitHub.
 
-<protocol>
+### Step 1: Push
 
-  <step name="push">
-    Push the current branch to origin with tracking (`-u` flag).
+Push the current branch to origin with tracking (`-u` flag).
 
-    Do not force push.
+Do not force push.
 
-  </step>
+### Step 2: Check PR
 
-  <step name="check-pr">
-    Check for existing pull request:
+Check for existing pull request:
 
-    ```bash
-    gh pr list --head <current-branch> --json number,url
-    ```
+```bash
+gh pr list --head <current-branch> --json number,url
+```
 
-  </step>
+### Step 3: Create or Report
 
-  <step name="create-or-report">
-    **If PR exists:** Output the existing PR URL and confirm pushed changes are added.
+**If PR exists:** Output the existing PR URL and confirm pushed changes are added.
 
-    **If no PR exists:** Create a pull request:
+**If no PR exists:** Create a pull request:
 
-    ```bash
-    gh pr create --title "<title>" --body "<body>"
-    ```
+```bash
+gh pr create --title "<title>" --body "<body>"
+```
 
-    **Title:** Use Conventional Commits format matching branch prefix (≤ 72 chars, imperative, no trailing period).
+**Title:** Use Conventional Commits format matching branch prefix (≤ 72 chars, imperative, no trailing period).
 
-    **Body:** Generate concise summary from commits:
-    - Brief description of what changed
-    - Key implementation details (if relevant)
+**Body:** Generate concise summary from commits:
 
-    **Base branch:** Target `main` unless branch name suggests otherwise.
+- Brief description of what changed
+- Key implementation details (if relevant)
 
-  </step>
+**Base branch:** Target `main` unless branch name suggests otherwise.
 
-  <step name="report">
-    Output using Push Report format below.
-  </step>
+### Step 4: Report
 
-</protocol>
+Output using Push Report format below.
 
 ### Push Report
 
-<report>
-
+```
 ## Push Complete
 
 | Metric         | Value                            |
@@ -218,8 +210,7 @@ Push branch and open a PR on GitHub.
 | Commits pushed | {count}                          |
 | PR Status      | {Created \| Updated \| Existing} |
 | PR URL         | {url}                            |
-
-</report>
+```
 
 ---
 
@@ -227,125 +218,114 @@ Push branch and open a PR on GitHub.
 
 Sync with remote using rebase, update all tracked branches, and delete branches with deleted upstreams.
 
-<protocol>
+### Step 1: Status
 
-  <step name="status">
-    Check current branch and status:
+Check current branch and status:
 
-    ```bash
-    git status
-    ```
+```bash
+git status
+```
 
-    Determine:
-    - Current branch name
-    - Whether branch has upstream tracking
-    - Modified files (staged and unstaged)
-    - Untracked files
+Determine:
 
-    If no upstream tracking branch, skip to Phase 2.
+- Current branch name
+- Whether branch has upstream tracking
+- Modified files (staged and unstaged)
+- Untracked files
 
-  </step>
+If no upstream tracking branch, skip to Phase 2.
 
-  <step name="stash">
-    If there are any modified or untracked files:
+### Step 2: Stash
 
-    ```bash
-    git stash push --include-untracked -m "Auto-stash for sync"
-    ```
+If there are any modified or untracked files:
 
-    Remember stash state for later restoration.
+```bash
+git stash push --include-untracked -m "Auto-stash for sync"
+```
 
-  </step>
+Remember stash state for later restoration.
 
-  <step name="fetch">
-    Fetch with prune:
+### Step 3: Fetch
 
-    ```bash
-    git fetch --prune
-    ```
+Fetch with prune:
 
-    This fetches latest and removes dead remote-tracking references.
+```bash
+git fetch --prune
+```
 
-  </step>
+This fetches latest and removes dead remote-tracking references.
 
-  <step name="update-branches">
-    Find all local branches with upstream tracking:
+### Step 4: Update Branches
 
-    ```bash
-    git branch -vv
-    ```
+Find all local branches with upstream tracking:
 
-    For each branch (except current) that can be fast-forwarded:
+```bash
+git branch -vv
+```
 
-    ```bash
-    git fetch origin remote_branch:local_branch
-    ```
+For each branch (except current) that can be fast-forwarded:
 
-    Skip branches requiring merge (not fast-forward).
+```bash
+git fetch origin remote_branch:local_branch
+```
 
-  </step>
+Skip branches requiring merge (not fast-forward).
 
-  <step name="rebase">
-    Rebase current branch on its upstream:
+### Step 5: Rebase
 
-    ```bash
-    git rebase
-    ```
+Rebase current branch on its upstream:
 
-    **If conflicts:**
-    1. Abort: `git rebase --abort`
-    2. Restore stash if applicable: `git stash pop`
-    3. Inform user and exit with failure
+```bash
+git rebase
+```
 
-  </step>
+**If conflicts:**
 
-  <step name="restore">
-    If stashed earlier:
+1. Abort: `git rebase --abort`
+2. Restore stash if applicable: `git stash pop`
+3. Inform user and exit with failure
 
-    ```bash
-    git stash pop
-    ```
+### Step 6: Restore
 
-    **If conflicts:** Inform user stash needs manual resolution and exit.
+If stashed earlier:
 
-  </step>
+```bash
+git stash pop
+```
 
-  <step name="switch-main">
-    If not already on main:
+**If conflicts:** Inform user stash needs manual resolution and exit.
 
-    ```bash
-    git checkout main
-    ```
+### Step 7: Switch Main
 
-    (Try `master` if `main` doesn't exist)
+If not already on main:
 
-  </step>
+```bash
+git checkout main
+```
 
-  <step name="cleanup">
-    Delete all local branches whose upstream is `[gone]`:
+(Try `master` if `main` doesn't exist)
 
-    ```bash
-    git for-each-ref --format '%(refname:short) %(upstream:track)' refs/heads | while read branch track; do
-      if [ "$track" = "[gone]" ]; then
-        git branch -D "$branch"
-      fi
-    done
-    ```
+### Step 8: Cleanup
 
-    Track deleted branches for report.
+Delete all local branches whose upstream is `[gone]`:
 
-  </step>
+```bash
+git for-each-ref --format '%(refname:short) %(upstream:track)' refs/heads | while read branch track; do
+  if [ "$track" = "[gone]" ]; then
+    git branch -D "$branch"
+  fi
+done
+```
 
-  <step name="report">
-    Output using Sync Report format below.
-  </step>
+Track deleted branches for report.
 
-</protocol>
+### Step 9: Report
+
+Output using Sync Report format below.
 
 ### Sync Report
 
-<report>
-
+```
 ## Sync Complete
 
 | Metric           | Value            |
@@ -362,8 +342,7 @@ Sync with remote using rebase, update all tracked branches, and delete branches 
 ### Remaining Branches
 
 {Output of `git branch -vv`}
-
-</report>
+```
 
 ---
 
@@ -371,60 +350,51 @@ Sync with remote using rebase, update all tracked branches, and delete branches 
 
 Complete end-to-end workflow: commit → push → merge → sync.
 
-<protocol>
+### Step 1: Commit Phase
 
-  <step name="commit-phase">
-    Execute Subcommand: commit protocol:
+Execute Subcommand: commit protocol:
 
-    1. Identify all changes
-    2. Create feature branch if on main
-    3. Create commits for ALL changes
-    4. Verify working tree is clean
+1. Identify all changes
+2. Create feature branch if on main
+3. Create commits for ALL changes
+4. Verify working tree is clean
 
-  </step>
+### Step 2: Push Phase
 
-  <step name="push-phase">
-    Execute Subcommand: push protocol:
+Execute Subcommand: push protocol:
 
-    1. Push branch with tracking
-    2. Check for existing PR
-    3. Create draft PR if needed
+1. Push branch with tracking
+2. Check for existing PR
+3. Create draft PR if needed
 
-  </step>
+### Step 3: Merge Phase
 
-  <step name="merge-phase">
-    Merge the PR:
+Merge the PR:
 
-    ```bash
-    # Merge with admin privileges
-    gh pr merge <number> --squash --admin
+```bash
+# Merge with admin privileges
+gh pr merge <number> --squash --admin
 
-    # Delete remote branch
-    git push origin --delete <branch>
-    ```
+# Delete remote branch
+git push origin --delete <branch>
+```
 
-  </step>
+### Step 4: Sync Phase
 
-  <step name="sync-phase">
-    Execute Subcommand: sync protocol:
+Execute Subcommand: sync protocol:
 
-    1. Fetch with prune
-    2. Switch to main
-    3. Update main: `git pull --rebase`
-    4. Delete merged local branches
+1. Fetch with prune
+2. Switch to main
+3. Update main: `git pull --rebase`
+4. Delete merged local branches
 
-  </step>
+### Step 5: Report
 
-  <step name="report">
-    Output using Ship Report format below.
-  </step>
-
-</protocol>
+Output using Ship Report format below.
 
 ### Ship Report
 
-<report>
-
+```
 ## Ship Complete
 
 | Phase  | Status                  |
@@ -441,8 +411,7 @@ Complete end-to-end workflow: commit → push → merge → sync.
 - **Commits:** {count}
 - **PR:** {url}
 - **Merged to:** main
-
-</report>
+```
 
 ---
 

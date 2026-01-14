@@ -4,18 +4,17 @@ paths: resources/views/**/*.blade.php, resources/**/*.css, **/*.vue, **/*.jsx, *
 
 # Tailwind CSS Rules
 
-<important>
+> **IMPORTANT**
+>
+> - **Tailwind v4 only:** Use v4 utilities—never use deprecated v3 utilities
+> - **CSS-first config:** Use `@theme` directive in CSS—no `tailwind.config.js` needed
+> - **Gap for spacing:** Use `gap-*` utilities for list spacing, not margins
+> - **Dark mode:** If existing pages support dark mode, new components must too via `dark:`
 
-- **Tailwind v4 only:** Use v4 utilities—never use deprecated v3 utilities
-- **CSS-first config:** Use `@theme` directive in CSS—no `tailwind.config.js` needed
-- **Gap for spacing:** Use `gap-*` utilities for list spacing, not margins
-- **Dark mode:** If existing pages support dark mode, new components must too via `dark:`
+## Examples
 
-</important>
+### Example: Tailwind v4 Import (Correct)
 
-<examples>
-
-  <example name="tailwind-v4-import" type="correct">
 ```css
 /* Tailwind v4 import */
 @import "tailwindcss";
@@ -25,18 +24,18 @@ paths: resources/views/**/*.blade.php, resources/**/*.css, **/*.vue, **/*.jsx, *
   --font-display: "Inter", sans-serif;
 }
 ```
-  </example>
 
-  <example name="tailwind-v4-import" type="wrong">
+### Example: Tailwind v4 Import (Wrong)
+
 ```css
 /* Tailwind v3 directives - deprecated */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 ```
-  </example>
 
-  <example name="gap-spacing" type="correct">
+### Example: Gap Spacing (Correct)
+
 ```html
 <!-- Use gap for list spacing -->
 <div class="flex gap-4">
@@ -50,9 +49,9 @@ paths: resources/views/**/*.blade.php, resources/**/*.css, **/*.vue, **/*.jsx, *
   <li>Second</li>
 </ul>
 ```
-  </example>
 
-  <example name="gap-spacing" type="wrong">
+### Example: Gap Spacing (Wrong)
+
 ```html
 <!-- Margins for list spacing - use gap instead -->
 <div class="flex">
@@ -61,26 +60,26 @@ paths: resources/views/**/*.blade.php, resources/**/*.css, **/*.vue, **/*.jsx, *
   <div>Item 3</div>
 </div>
 ```
-  </example>
 
-  <example name="opacity-utilities" type="correct">
+### Example: Opacity Utilities (Correct)
+
 ```html
 <!-- Tailwind v4 opacity syntax -->
 <div class="bg-black/50">50% opacity black</div>
 <div class="text-white/75">75% opacity white text</div>
 <div class="border-gray-500/25">25% opacity border</div>
 ```
-  </example>
 
-  <example name="opacity-utilities" type="wrong">
+### Example: Opacity Utilities (Wrong)
+
 ```html
 <!-- Deprecated opacity utilities -->
 <div class="bg-black bg-opacity-50">...</div>
 <div class="text-white text-opacity-75">...</div>
 ```
-  </example>
 
-  <example name="dark-mode">
+### Example: Dark Mode
+
 ```html
 <!-- Dark mode support -->
 <div class="bg-white dark:bg-gray-900">
@@ -88,22 +87,19 @@ paths: resources/views/**/*.blade.php, resources/**/*.css, **/*.vue, **/*.jsx, *
   <p class="text-gray-600 dark:text-gray-300">Content</p>
 </div>
 ```
-  </example>
 
-  <example name="class-organization">
+### Example: Class Organization
+
 ```html
 <!-- Organized class order: layout → spacing → sizing → colors → effects -->
 <button class="flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors">
   Submit
 </button>
 ```
-  </example>
 
-</examples>
+## Context
 
-<context>
-
-## Tailwind v4 Changes
+### Tailwind v4 Changes
 
 Tailwind v4 uses CSS-first configuration:
 
@@ -121,7 +117,7 @@ Tailwind v4 uses CSS-first configuration:
 - `corePlugins` option
 - `@tailwind` directives
 
-## Deprecated Utilities
+### Deprecated Utilities
 
 | Deprecated | Replacement |
 |------------|-------------|
@@ -139,11 +135,9 @@ Tailwind v4 uses CSS-first configuration:
 
 Opacity values remain numeric (e.g., `bg-black/50` for 50% opacity).
 
-</context>
+## Instructions
 
-<instructions>
-
-## Class Organization
+### Class Organization
 
 Think through class placement carefully:
 
@@ -151,13 +145,13 @@ Think through class placement carefully:
 2. **Parent vs child** - Add shared styles to parent, unique to children
 3. **Logical grouping** - Layout → spacing → sizing → colors → effects
 
-## Spacing
+### Spacing
 
 - Use `gap-*` for flex/grid children spacing
 - Reserve margins for positioning relative to siblings outside the container
 - Use padding for internal spacing
 
-## Dark Mode
+### Dark Mode
 
 If the project supports dark mode:
 
@@ -169,7 +163,7 @@ If the project supports dark mode:
 
 Check existing components for dark mode patterns before adding new ones.
 
-## Theme Extension
+### Theme Extension
 
 Extend the theme in CSS using `@theme`:
 
@@ -185,7 +179,7 @@ Extend the theme in CSS using `@theme`:
 
 Then use as: `bg-brand`, `text-brand-light`, `font-display`
 
-## Component Extraction
+### Component Extraction
 
 When patterns repeat, extract into Blade/Vue/React components:
 
@@ -196,15 +190,13 @@ When patterns repeat, extract into Blade/Vue/React components:
 </button>
 ```
 
-## Documentation
+### Documentation
 
 Use `search-docs` tool with queries like:
 - `flexbox`
 - `grid layout`
 - `dark mode`
 - `responsive design`
-
-</instructions>
 
 ## Standards
 
