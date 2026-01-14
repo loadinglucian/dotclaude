@@ -1,7 +1,7 @@
 ---
 description: Git workflow commands (commit, push, sync, ship)
 allowed-tools: Bash(git:*), Bash(gh:*)
-model: inherit
+model: haiku
 ---
 
 <examples>
@@ -31,13 +31,13 @@ Handles branch management, commits, PRs, and repository sync with Conventional C
 
 Parse `$ARGUMENTS` to determine which subcommand to run:
 
-| Argument | Action |
-| -------- | ------ |
-| `commit` | Jump to "Subcommand: commit" |
-| `push` | Jump to "Subcommand: push" |
-| `sync` | Jump to "Subcommand: sync" |
-| `ship` | Jump to "Subcommand: ship" |
-| (empty/unknown) | Output usage help below |
+| Argument        | Action                       |
+| --------------- | ---------------------------- |
+| `commit`        | Jump to "Subcommand: commit" |
+| `push`          | Jump to "Subcommand: push"   |
+| `sync`          | Jump to "Subcommand: sync"   |
+| `ship`          | Jump to "Subcommand: ship"   |
+| (empty/unknown) | Output usage help below      |
 
 ```
 Usage: /git <subcommand>
@@ -141,11 +141,11 @@ Create a branch (if on main) and commits based on working tree changes.
 
 ## Commit Complete
 
-| Metric | Value |
-| ------ | ----- |
-| Branch | {branch_name} |
-| Commits | {count} |
-| Files changed | {count} |
+| Metric        | Value         |
+| ------------- | ------------- |
+| Branch        | {branch_name} |
+| Commits       | {count}       |
+| Files changed | {count}       |
 
 ### Commits Created
 
@@ -212,12 +212,12 @@ Push branch and open a PR on GitHub.
 
 ## Push Complete
 
-| Metric | Value |
-| ------ | ----- |
-| Branch | {branch_name} |
-| Commits pushed | {count} |
-| PR Status | {Created \| Updated \| Existing} |
-| PR URL | {url} |
+| Metric         | Value                            |
+| -------------- | -------------------------------- |
+| Branch         | {branch_name}                    |
+| Commits pushed | {count}                          |
+| PR Status      | {Created \| Updated \| Existing} |
+| PR URL         | {url}                            |
 
 </report>
 
@@ -348,12 +348,12 @@ Sync with remote using rebase, update all tracked branches, and delete branches 
 
 ## Sync Complete
 
-| Metric | Value |
-| ------ | ----- |
-| Current branch | {branch_name} |
-| Branches updated | {count} |
-| Branches deleted | {count} |
-| Stash | {Applied \| N/A} |
+| Metric           | Value            |
+| ---------------- | ---------------- |
+| Current branch   | {branch_name}    |
+| Branches updated | {count}          |
+| Branches deleted | {count}          |
+| Stash            | {Applied \| N/A} |
 
 ### Deleted Branches
 
@@ -427,13 +427,13 @@ Complete end-to-end workflow: commit → push → merge → sync.
 
 ## Ship Complete
 
-| Phase | Status |
-| ----- | ------ |
+| Phase  | Status                  |
+| ------ | ----------------------- |
 | Commit | {count} commits created |
-| Push | Branch pushed |
-| PR | {url} |
-| Merge | Squashed to main |
-| Sync | Cleaned up |
+| Push   | Branch pushed           |
+| PR     | {url}                   |
+| Merge  | Squashed to main        |
+| Sync   | Cleaned up              |
 
 ### Summary
 

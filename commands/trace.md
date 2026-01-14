@@ -106,9 +106,9 @@ Coordinates parallel trace-agent analysis across multiple files to identify bugs
 
 ### Issues
 
-| Priority | File | Line | Issue | Suggested Fix |
-| -------- | ---- | ---- | ----- | ------------- |
-| {badge}  | {file} | {line} | {description} | {fix} |
+| Priority | File   | Line   | Issue         | Suggested Fix |
+| -------- | ------ | ------ | ------------- | ------------- |
+| {badge}  | {file} | {line} | {description} | {fix}         |
 
 For each issue, include:
 
