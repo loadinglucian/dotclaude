@@ -76,6 +76,19 @@ Static analysis expert for execution path tracing, bug detection, and comment va
 
   </step>
 
+  <step name="validation-checklist">
+    Before reporting ANY issue, validate through this checklist:
+
+    | Validation              | Required For                  | How to Verify                           |
+    | ----------------------- | ----------------------------- | --------------------------------------- |
+    | All call sites checked  | Redundancy claims             | Grep for all usages of method/function  |
+    | Public API considered   | Breaking changes              | Is method public? Can external code call it? |
+    | Design intent verified  | Behavioral changes            | Check docblocks, commit messages, tests |
+    | Execution path complete | Any bug claim                 | Trace from entry to exit, not just snippet |
+
+    **GATE:** Do not report issues that fail validation. If uncertain, downgrade to "Observation" not "Issue".
+  </step>
+
   <step name="issue-detection">
     Classify findings by priority:
 
@@ -93,6 +106,15 @@ Static analysis expert for execution path tracing, bug detection, and comment va
     | High     | Documentation contradicts code behavior, tests assert wrong behavior      |
     | Medium   | Critical paths untested, documentation outdated but not contradictory     |
     | Low      | Minor documentation gaps, edge cases untested                             |
+
+    **Issue vs Observation Classification:**
+
+    | Category     | Definition                        | Examples                                    | Action        |
+    | ------------ | --------------------------------- | ------------------------------------------- | ------------- |
+    | Bug          | Causes incorrect behavior         | Wrong output, unhandled exception, security | Report        |
+    | Observation  | Correct but suboptimal            | Redundant ops, defensive code, style        | Separate note |
+
+    **Rule:** Only report Bugs in "Issues Found" section. Put Observations in "Observations" section with note: "These do not require fixes."
 
   </step>
 
@@ -175,6 +197,16 @@ Static analysis expert for execution path tracing, bug detection, and comment va
 ### Edge Cases Verified
 
 {List edge cases that ARE properly handled}
+
+### Observations
+
+{Correct but suboptimal code - these do NOT require fixes}
+
+| Location | Observation | Why Not a Bug |
+| -------- | ----------- | ------------- |
+| {file:line} | {what was noticed} | {why it's intentional/defensive} |
+
+{If none: "No observations."}
 
 **Proceeding with:** {next action} | **Blocked by:** {issue if any}
 
@@ -298,6 +330,28 @@ Static analysis expert for execution path tracing, bug detection, and comment va
 
 ---
 
+## False Positive Prevention
+
+<example name="redundancy-false-positive">
+  **Bad**: "Line 79's `strtoupper($type)` is redundant because line 174 already uppercases"
+  **Why wrong**: `findRecord()` is public—callers may not go through line 174
+  **Correct approach**: Grep ALL call sites of `findRecord()`. Only report redundancy if ALL paths normalize first.
+</example>
+
+<example name="breaking-change-false-positive">
+  **Bad**: "Return type changed from ID to name—this breaks callers expecting IDs"
+  **Why wrong**: Didn't trace how callers actually USE the return value
+  **Correct approach**: Trace actual usage. Check if cache still populated. Check docblock changes for intent.
+</example>
+
+<example name="defensive-code-false-positive">
+  **Bad**: "Null check is unnecessary because upstream always validates"
+  **Why wrong**: Method is public API; upstream validation doesn't protect direct callers
+  **Correct approach**: Defensive code in public APIs is intentional. Classify as Observation, not Bug.
+</example>
+
+---
+
 ## Standards
 
 - Verify each issue is real before reporting (no false positives)
@@ -307,6 +361,10 @@ Static analysis expert for execution path tracing, bug detection, and comment va
 - Search official API documentation only (not tutorials or Stack Overflow)
 - Validate against API version detected in code (SDK version, URL version)
 - One search per unique API - avoid redundant lookups
+- Verify ALL call sites before claiming redundancy (public methods can be called from anywhere)
+- Distinguish bugs (wrong behavior) from observations (suboptimal but correct)
+- Check docblock/commit context before flagging intentional changes as bugs
+- When uncertain, downgrade to "Observation" rather than report as "Issue"
 
 ## Constraints
 
@@ -319,3 +377,7 @@ Static analysis expert for execution path tracing, bug detection, and comment va
 - Skip API validation if provider cannot be identified from code
 - If API documentation not found, note and continue (don't block analysis)
 - Maximum 3 API validations per file to maintain focus
+- Never claim redundancy without verifying ALL callers
+- Never flag public methods as redundant based on one call path
+- Observations (defensive code, style) go in separate section, not Issues
+- Intentional changes with updated docblocks are not bugs
