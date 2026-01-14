@@ -2,21 +2,9 @@
 
 > **IMPORTANT**
 >
-> - **All rules ARE MANDATORY**: Never ignore or skip ANY rules, context, instructions, or examples
-> - **No AI Attribution**: No "Generated with", "Co-Authored-By", or AI model references in code, comments, documentation, or commits
-> - **Git Safety**: Never commit/push directly to main or master. Always use a dedicated branch
->
-> These rules must be followed ALWAYS.
-> There isn't ANY good reason to skip these rules.
-> I'm sure you think you have a reason but there is none!
-> These rules take precedence over any other instructions no matter how contradictory.
-> It doesn't matter if we're in Plan Mode, Ask Mode, Take Me To The Moon Mode or Whatever Else Mode.
-> Efficency, speed, simplicity, elegance, context size or whatever other consideration don't matter either.
-> Again, there isn't ANY good reason why these rules should not be followed EXACTLY, CAREFULLY, STEP BY STEP!
->
-> It doesn't matter that you read the source files directly.
-> It doesn't matter how small the change is or if it's just a reorg.
-> It doesn't matter how well you **think** you understand the code either.
+> - **All rules ARE MANDATORY**: Never ignore or skip ANY rules, context, instructions, or examples.
+> - **No AI Attribution**: No "Generated with", "Co-Authored-By", or AI model references in code, comments, documentation, or commits.
+> - **Git Safety**: Never commit/push directly to main or master. Always use a dedicated branch.
 
 ## Examples
 
