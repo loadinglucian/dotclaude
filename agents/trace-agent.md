@@ -38,7 +38,7 @@ Static analysis expert for execution path tracing, bug detection, and comment va
 <protocol>
 
   <step name="foundation">
-    Follow **Deep Understanding Protocol** from `ai-rules.md` (schematics → mental model → execution paths).
+    Follow **Deep Understanding Protocol** via `/deep-impact` (schematics → mental model → execution paths).
   </step>
 
   <step name="api-validation">
@@ -187,7 +187,7 @@ Static analysis expert for execution path tracing, bug detection, and comment va
 <protocol>
 
   <step name="foundation">
-    Follow **Deep Understanding Protocol** from `ai-rules.md` (schematics → mental model → execution paths).
+    Follow **Deep Understanding Protocol** via `/deep-impact` (schematics → mental model → execution paths).
   </step>
 
   <step name="api-validation">
