@@ -1,5 +1,5 @@
 ---
-paths: docs/**/*.md
+paths: docs/**/*.md, **/README.md
 ---
 
 # Documentation Writing Rules
@@ -139,33 +139,33 @@ single `|` delimited string:
 
 #### Defaults & Conventions
 
-| Category    | Phrases                                                                  |
-| ----------- | ------------------------------------------------------------------------ |
-| Defaults    | "By default...", "Unless otherwise specified...", "Typically..."         |
-| Built-ins   | "includes...", "ships with...", "is included with...", "comes with..."   |
-| Conventions | "By convention...", "unless another name is explicitly specified"        |
-| Location    | "is stored in your application's `config/X.php` configuration file"      |
-| Discovery   | "In this file, you will find...", "you may have noticed that..."         |
+| Category    | Phrases                                                                |
+| ----------- | ---------------------------------------------------------------------- |
+| Defaults    | "By default...", "Unless otherwise specified...", "Typically..."       |
+| Built-ins   | "includes...", "ships with...", "is included with...", "comes with..." |
+| Conventions | "By convention...", "unless another name is explicitly specified"      |
+| Location    | "is stored in your application's `config/X.php` configuration file"    |
+| Discovery   | "In this file, you will find...", "you may have noticed that..."       |
 
 #### Process & Transitions
 
-| Category     | Phrases                                                                        |
-| ------------ | ------------------------------------------------------------------------------ |
-| Starting     | "To get started...", "First, let's assume...", "Let's look at..."              |
-| Continuing   | "Next, let's...", "Now that you have...", "Once you have..."                   |
-| Alternatives | "Alternatively...", "Or, you may...", "On the other hand..."                   |
-| Elaborating  | "In this example...", "As you can see...", "As mentioned previously..."        |
-| Deep dive    | "To get a better understanding of X, let's jump back into..."                  |
-| Rhetorical   | "So, what if...?" (to introduce edge cases or next concepts)                   |
+| Category     | Phrases                                                                 |
+| ------------ | ----------------------------------------------------------------------- |
+| Starting     | "To get started...", "First, let's assume...", "Let's look at..."       |
+| Continuing   | "Next, let's...", "Now that you have...", "Once you have..."            |
+| Alternatives | "Alternatively...", "Or, you may...", "On the other hand..."            |
+| Elaborating  | "In this example...", "As you can see...", "As mentioned previously..." |
+| Deep dive    | "To get a better understanding of X, let's jump back into..."           |
+| Rhetorical   | "So, what if...?" (to introduce edge cases or next concepts)            |
 
 #### Emphasis & Reassurance
 
-| Category      | Phrases                                                              |
-| ------------- | -------------------------------------------------------------------- |
-| Importance    | "It's important to understand...", "Remember...", "Note that..."     |
-| Reassurance   | "Don't worry - ...", "Again, if...", "It's a cinch!"                 |
-| Prerequisites | "Before getting started...", "be sure to configure..."               |
-| Reminder      | "Remember, any...", "Keep in mind that..."                           |
+| Category      | Phrases                                                          |
+| ------------- | ---------------------------------------------------------------- |
+| Importance    | "It's important to understand...", "Remember...", "Note that..." |
+| Reassurance   | "Don't worry - ...", "Again, if...", "It's a cinch!"             |
+| Prerequisites | "Before getting started...", "be sure to configure..."           |
+| Reminder      | "Remember, any...", "Keep in mind that..."                       |
 
 #### Technical Descriptions
 
@@ -193,8 +193,8 @@ Every documentation file follows this structure:
 
 ```markdown
 - [Main Section](#main-section)
-    - [Subsection One](#subsection-one)
-    - [Subsection Two](#subsection-two)
+  - [Subsection One](#subsection-one)
+  - [Subsection Two](#subsection-two)
 - [Another Section](#another-section)
 ```
 
@@ -309,14 +309,14 @@ Follow with code showing how to override:
 
 **Language annotations:**
 
-| Annotation | Use for                          |
-| ---------- | -------------------------------- |
-| `php`      | PHP code                         |
-| `blade`    | Blade templates (not `html`)     |
-| `shell`    | Terminal commands (not `bash`)   |
-| `json`     | JSON configuration               |
-| `xml`      | XML/HTML markup                  |
-| `env`      | Environment files                |
+| Annotation | Use for                        |
+| ---------- | ------------------------------ |
+| `php`      | PHP code                       |
+| `blade`    | Blade templates (not `html`)   |
+| `shell`    | Terminal commands (not `bash`) |
+| `json`     | JSON configuration             |
+| `xml`      | XML/HTML markup                |
+| `env`      | Environment files              |
 
 **Naming in examples:**
 
