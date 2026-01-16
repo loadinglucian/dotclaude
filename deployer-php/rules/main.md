@@ -10,12 +10,14 @@ We're building DeployerPHP, a server and site deployment tool for PHP -- a Compo
 flowchart TD
     bin/deployer --> Container --> SymfonyApp --> Commands
     Commands --> Traits --> Services --> Repositories
-    Services --> DTOs
+    Services --> Builders --> DTOs
+    Repositories --> Builders
     Commands -.-> playbooks[playbooks/]
 ```
 
 ```text
 app/
+├── Builders/          # DTO factory classes (centralized instantiation)
 ├── Console/           # Commands
 │   ├── Nginx/         # Nginx web server control
 │   ├── Cron/          # Cron job management
@@ -48,21 +50,24 @@ app/
 playbooks/             # Remote bash scripts
 ```
 
-| Layer        | Purpose                       | I/O         |
-| ------------ | ----------------------------- | ----------- |
-| Commands     | Orchestrate user interaction  | Yes         |
-| Traits       | Shared command operations     | Via Command |
-| Services     | Business logic, external APIs | No          |
-| Repositories | Inventory CRUD                | No          |
-| playbooks/   | Remote server provisioning    | Via SSH     |
+| Layer        | Purpose                          | I/O         |
+| ------------ | -------------------------------- | ----------- |
+| Commands     | Orchestrate user interaction     | Yes         |
+| Traits       | Shared command operations        | Via Command |
+| Services     | Business logic, external APIs    | No          |
+| Repositories | Inventory CRUD                   | No          |
+| Builders     | Centralized DTO instantiation    | No          |
+| DTOs         | Immutable readonly data objects  | No          |
+| playbooks/   | Remote server provisioning       | Via SSH     |
 
 **Key Classes:**
 
 - `Container` - DI auto-wiring via reflection
 - `SymfonyApp` - Command registration, CLI entry
 - `BaseCommand` - Command infrastructure (injected services)
-- `ServerDTO`/`SiteDTO`/`SiteServerDTO`/`CronDTO`/`SupervisorDTO` - Immutable data objects
-- `ServerRepository`/`SiteRepository` - Inventory access
+- `*Builder` - Centralized DTO creation (`SiteBuilder`, `ServerBuilder`, etc.)
+- `*DTO` - Immutable data objects (`SiteDTO`, `ServerDTO`, etc.)
+- `*Repository` - Inventory access (`ServerRepository`, `SiteRepository`)
 
 **Command Domains:**
 
@@ -101,7 +106,7 @@ Keep architecture updated when making changes.
 ### Example: DI Production
 
 ```php
-// Production - use container for all object creation except DTOs
+// Production - use container for all object creation except DTOs/Builders
 $service = $this->container->build(MyService::class);
 ```
 
@@ -149,9 +154,49 @@ try {
 $this->nay('Failed to add server: ' . $e->getMessage());
 ```
 
+### Example: Builder Fresh Creation
+
+```php
+// Create new DTO - only specify needed fields, others use defaults
+$site = SiteBuilder::new()
+    ->domain($domain)
+    ->server($server->name)
+    ->phpVersion($phpVersion)
+    ->build();
+```
+
+### Example: Builder Copy-Modify
+
+```php
+// Copy existing DTO, change specific fields - other fields preserved automatically
+$site = SiteBuilder::from($site)
+    ->repo($repo)
+    ->branch($branch)
+    ->build();
+```
+
+### Example: Builder Hydration
+
+```php
+// Hydrate from storage array - validation and type-safety handled by builder
+$site = SiteBuilder::fromStorage($data)->build();
+```
+
+### Example: Builder Wrong
+
+```php
+// WRONG - direct DTO instantiation (bypasses centralized creation)
+$site = new SiteDTO(domain: $d, repo: $r, branch: $b, server: $s, ...);
+
+// RIGHT - use builder
+$site = SiteBuilder::new()->domain($d)->server($s)->...->build();
+```
+
 ## Rules
 
-- Use `$container->build(ClassName::class)` for all object creation except DTOs/value objects
+- Use `$container->build(ClassName::class)` for all object creation except DTOs/Builders
+- Use Builders for all DTO instantiation (`SiteBuilder::new()`, `::from()`, `::fromStorage()`)
+- Never instantiate DTOs directly with `new *DTO()` - use the corresponding Builder
 - Services throw complete, user-facing exceptions with context
 - Commands display exception messages directly without adding prefixes
 - Preserve exception chain with `previous: $e` when wrapping exceptions
