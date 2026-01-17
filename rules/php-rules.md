@@ -6,9 +6,10 @@ paths: **/*.php
 
 > **IMPORTANT**
 >
-> - **Yoda conditions:** Constants/literals ALWAYS on LEFT side of comparisons
-> - **Always use braces:** ALL control structures must use `{ }` - no single-line shortcuts
 > - **Strict types:** Declare `declare(strict_types=1);` in every file
+> - **Always use braces:** ALL control structures must use `{ }` - no single-line shortcuts
+> - **Yoda conditions:** Constants/literals ALWAYS on LEFT side of comparisons
+> - **PHPStan level 10:** maximum strictness
 
 ## Examples
 
