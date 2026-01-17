@@ -2,6 +2,12 @@
 
 We're building DeployerPHP, a server and site deployment tool for PHP -- a Composer package and CLI built on Symfony Console/
 
+> **IMPORTANT**
+>
+> - All object creation goes through `Container` (except DTOs/Builders)
+> - DTOs are ALWAYS created via Builders, never directly with `new *DTO()`
+> - Services throw complete, user-facing exceptions; Commands display them without prefixes
+
 ## Context
 
 ### Architecture
@@ -192,11 +198,17 @@ $site = new SiteDTO(domain: $d, repo: $r, branch: $b, server: $s, ...);
 $site = SiteBuilder::new()->domain($d)->server($s)->...->build();
 ```
 
-## Rules
+## Standards
 
 - Use `$container->build(ClassName::class)` for all object creation except DTOs/Builders
 - Use Builders for all DTO instantiation (`SiteBuilder::new()`, `::from()`, `::fromStorage()`)
-- Never instantiate DTOs directly with `new *DTO()` - use the corresponding Builder
 - Services throw complete, user-facing exceptions with context
 - Commands display exception messages directly without adding prefixes
 - Preserve exception chain with `previous: $e` when wrapping exceptions
+
+## Constraints
+
+- Never instantiate DTOs directly with `new *DTO()`—use the corresponding Builder
+- Never add prefixes when displaying exception messages in Commands
+- Never wrap exceptions without `previous: $e` to preserve the chain
+- Never bypass Container for object creation (except DTOs/Builders)
