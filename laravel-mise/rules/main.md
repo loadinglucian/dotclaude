@@ -1,10 +1,10 @@
-# CLAUDE.md
+# Laravel Mise Rules
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+We're building Laravel Mise, a Laravel package that installs and configures a curated set of development tools via a single Artisan command.
 
-## Package Overview
+The name references "mise en place" — having everything ready before you start.
 
-Laravel Mise is a Laravel package that installs and configures a curated set of development tools (Livewire, PHPStan, Pint, Pest, Prettier, etc.) via a single Artisan command. The name references "mise en place" — having everything ready before you start.
+We affectionately refer to it as just "mise".
 
 > **IMPORTANT**
 >

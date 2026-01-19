@@ -369,14 +369,10 @@ Execute Subcommand: push protocol:
 
 ### Step 3: Merge Phase
 
-Merge the PR:
+Merge the PR and delete the remote branch:
 
 ```bash
-# Merge with admin privileges
-gh pr merge <number> --squash --admin
-
-# Delete remote branch
-git push origin --delete <branch>
+gh pr merge <number> --squash --admin --delete-branch
 ```
 
 ### Step 4: Sync Phase
@@ -422,6 +418,7 @@ Output using Ship Report format below.
 - Never leave uncommitted changes after `/git commit`
 - Generate concise PR descriptions from commit messages
 - Squash merge for clean history
+- Delete remote branch after merge (merged branches don't linger)
 
 ## Constraints
 

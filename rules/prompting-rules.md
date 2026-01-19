@@ -1,5 +1,5 @@
 ---
-paths: .claude/**
+paths: .claude/**, agents/**/*.md, commands/**/*.md, rules/**/*.md, skills/**/*.md
 ---
 
 # Prompt Engineering Rules
