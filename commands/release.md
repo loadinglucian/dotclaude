@@ -69,11 +69,33 @@ git describe --tags --abbrev=0 2>/dev/null
 
 Strip leading `v` if present (e.g., `v1.2.3` → `1.2.3`).
 
-If no tags exist, use `1.0.0` as the initial version (skip increment calculation).
+If no tags exist, use `1.0.0` as the initial version (skip increment calculation and validation).
 
-### Step 2: Calculate
+### Step 2: Validate
 
-If no tags exist, use `1.0.0` as the version and skip to Step 3.
+**Skip this step if no tags exist (initial release).**
+
+Check if there are commits since the last tag:
+
+```bash
+git log v{old_version}..HEAD --oneline
+```
+
+If the output is empty (no commits), abort with this message:
+
+```
+## No Changes to Release
+
+There are no commits since v{old_version}. Nothing to release.
+
+To see the current state:
+  git log --oneline -5
+  git describe --tags --abbrev=0
+```
+
+### Step 3: Calculate
+
+If no tags exist, use `1.0.0` as the version and skip to Step 4.
 
 Otherwise, parse the current version into components: `MAJOR.MINOR.PATCH`
 
@@ -89,11 +111,11 @@ New version format: `{MAJOR}.{MINOR}.{PATCH}`
 
 Tag format: `v{MAJOR}.{MINOR}.{PATCH}`
 
-### Step 3: Changelog
+### Step 4: Changelog
 
 **If this is the initial release (no previous tags):**
 
-Create a simple changelog entry and skip to Step 3.4:
+Create a simple changelog entry and skip to Step 4.4:
 
 ```markdown
 ## [1.0.0] - {YYYY-MM-DD}
@@ -103,7 +125,7 @@ First release.
 
 **Otherwise, proceed with commit gathering:**
 
-#### 3.1: Gather Commits
+#### 4.1: Gather Commits
 
 Get all commits since the last tag:
 
@@ -111,7 +133,7 @@ Get all commits since the last tag:
 git log v{old_version}..HEAD --pretty=format:"%s" --reverse
 ```
 
-#### 3.2: Categorize Commits
+#### 4.2: Categorize Commits
 
 Map commit prefixes to keepachangelog sections:
 
@@ -125,7 +147,7 @@ Map commit prefixes to keepachangelog sections:
 
 Group commits by section. Skip empty sections.
 
-#### 3.3: Format Entry
+#### 4.3: Format Entry
 
 Create the changelog entry:
 
@@ -150,7 +172,7 @@ Create the changelog entry:
 
 Only include sections that have commits.
 
-#### 3.4: Update CHANGELOG.md
+#### 4.4: Update CHANGELOG.md
 
 Check if `CHANGELOG.md` exists:
 
@@ -174,7 +196,38 @@ First release.
 {new entry}
 ```
 
-### Step 4: Tag
+### Step 5: Confirm
+
+**Always require explicit user confirmation before proceeding.**
+
+Present the release summary and ask for approval:
+
+```
+## Ready to Release
+
+| Field   | Value         |
+| ------- | ------------- |
+| Current | v{old_version} |
+| New     | v{version}    |
+| Commits | {count}       |
+
+### Changelog Preview
+
+{changelog_entry}
+
+---
+
+Proceed with release? This will:
+1. Commit CHANGELOG.md
+2. Create annotated tag v{version}
+3. Push commit and tag to origin
+```
+
+Wait for explicit user confirmation (e.g., "yes", "proceed", "do it").
+
+If the user declines or requests changes, abort and provide guidance on how to adjust.
+
+### Step 6: Tag
 
 Create an annotated tag with the changelog entry as the message:
 
@@ -184,7 +237,7 @@ git commit -m "docs(changelog): add entry for v{version}"
 git tag -a "v{version}" -m "{changelog_entry}"
 ```
 
-### Step 5: Push
+### Step 7: Push
 
 Push the tag and commit to origin:
 
@@ -193,7 +246,7 @@ git push origin HEAD
 git push origin "v{version}"
 ```
 
-### Step 6: Report
+### Step 8: Report
 
 Output using Release Report format below.
 
