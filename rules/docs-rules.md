@@ -455,3 +455,4 @@ Fix any formatting issues before committing.
 - Never use "simply" or "just" - they dismiss complexity
 - Never use generic example names (Foo, Bar, Thing, Item)
 - Never skip the introduction pattern - every doc needs context first
+- Never use em-dashes (—) - use commas, parentheses, or colons instead
