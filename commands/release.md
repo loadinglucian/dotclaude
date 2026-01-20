@@ -91,16 +91,24 @@ Tag format: `v{MAJOR}.{MINOR}.{PATCH}`
 
 ### Step 3: Changelog
 
+**If this is the initial release (no previous tags):**
+
+Create a simple changelog entry and skip to Step 3.4:
+
+```markdown
+## [1.0.0] - {YYYY-MM-DD}
+
+First release.
+```
+
+**Otherwise, proceed with commit gathering:**
+
 #### 3.1: Gather Commits
 
-Get all commits since the last tag (or all commits if no tags):
+Get all commits since the last tag:
 
 ```bash
-# If tag exists
 git log v{old_version}..HEAD --pretty=format:"%s" --reverse
-
-# If no tags exist
-git log --pretty=format:"%s" --reverse
 ```
 
 #### 3.2: Categorize Commits
@@ -148,12 +156,20 @@ Check if `CHANGELOG.md` exists:
 
 **If exists:** Insert the new entry after the header (after the "All notable changes..." line).
 
-**If not exists:** Create with header:
+**If not exists (initial release):** Create with simple format:
 
 ```markdown
 # Changelog
 
-All notable changes documented per [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
+## [1.0.0] - {YYYY-MM-DD}
+
+First release.
+```
+
+**If not exists (subsequent release):** Create with header:
+
+```markdown
+# Changelog
 
 {new entry}
 ```
