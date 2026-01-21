@@ -29,10 +29,10 @@ app/
 │   ├── Cron/          # Cron job management
 │   ├── Mariadb/       # MariaDB service control
 │   ├── Memcached/     # Memcached service control
-│   ├── Pro/           # Provider integrations + consolidated commands
-│   │   ├── Aws/       # AWS EC2 integration
-│   │   ├── Do/        # DigitalOcean integration
-│   │   └── Server/    # Consolidated server commands (logs, run)
+│   ├── Cloud/         # Cloud provider integrations
+│   │   ├── Aws/       # AWS EC2 + Route53 integration
+│   │   ├── Cf/        # Cloudflare DNS integration
+│   │   └── Do/        # DigitalOcean integration
 │   ├── Mysql/         # MySQL service control
 │   ├── Php/           # PHP-FPM service control
 │   ├── Postgresql/    # PostgreSQL service control
@@ -77,17 +77,17 @@ playbooks/             # Remote bash scripts
 
 **Command Domains:**
 
-- Nginx (3): restart, start, stop
+- Cloud (17): aws:dns:*, aws:key:*, aws:provision, cf:dns:*, do:dns:*, do:key:*, do:provision
 - Cron (3): create, delete, sync
 - Mariadb (4): install, restart, start, stop
 - Memcached (4): install, restart, start, stop
-- Pro (10): aws:key:add, aws:key:delete, aws:key:list, aws:provision, do:key:add, do:key:delete, do:key:list, do:provision, server:logs, server:run
 - Mysql (4): install, restart, start, stop
+- Nginx (3): restart, start, stop
 - Php (3): restart, start, stop
 - Postgresql (4): install, restart, start, stop
 - Redis (4): install, restart, start, stop
 - Scaffold (4): ai, crons, hooks, supervisors
-- Server (6): add, delete, firewall, info, install, ssh
+- Server (8): add, delete, firewall, info, install, logs, run, ssh
 - Site (8): create, delete, deploy, https, rollback, shared:pull, shared:push, ssh
 - Supervisor (6): create, delete, restart, start, stop, sync
 - Valkey (4): install, restart, start, stop

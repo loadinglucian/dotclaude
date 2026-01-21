@@ -57,6 +57,9 @@ gh pr diff --name-only
 # Fetch both comment types
 gh api /repos/{owner}/{repo}/issues/{number}/comments    # PR-level
 gh api /repos/{owner}/{repo}/pulls/{number}/comments     # Review comments (inline)
+
+# Fetch CI check status
+gh pr checks {number} --json name,state,conclusion,link,workflow,bucket
 ```
 
 Extract from each comment:
@@ -69,6 +72,8 @@ Extract from each comment:
 | `path`                    | File path (review comments)    |
 | `line` or `original_line` | Line number (review comments)  |
 | `diff_hunk`               | Code context (review comments) |
+| CI checks                 | `gh pr checks` output          |
+| Failed checks             | Filtered by `bucket: "fail"`   |
 
 ### Step 2: Deep Analysis
 
@@ -92,7 +97,21 @@ Execute these steps:
 Focus on building comprehensive understanding for later comment validation.
 ```
 
-After all agents complete, compile a unified understanding of the PR changes.
+**In the SAME message**, also spawn a CI analysis agent:
+
+Use the Task tool with `subagent_type: "ci-agent"`:
+
+```
+Analyze CI status for this PR:
+
+**PR:** {owner}/{repo}#{pr_number}
+**Branch:** {head_ref}
+
+Fetch workflow status and analyze any failures.
+Focus on: test failures, lint errors, type errors, build failures.
+```
+
+After all agents complete, compile a unified understanding of the PR changes and CI status.
 
 ### Step 3: Filter
 
@@ -113,6 +132,18 @@ For each substantive comment, assess validity using the accumulated understandin
 | Correctness       | Is the reviewer's assessment technically accurate? |
 | Cross-file impact | Does comment account for related changes in PR?    |
 | Project alignment | Does suggestion match CLAUDE.md and patterns?      |
+| CI correlation    | Does comment align with or contradict CI findings? |
+
+**CI-Informed Assessment:**
+
+When CI data is available, factor it into verdicts:
+
+| Scenario                                | Effect on Verdict                           |
+| --------------------------------------- | ------------------------------------------- |
+| Comment about failure + CI confirms     | Strengthen → VALID - Implement (CI-confirmed) |
+| Comment claims bug + CI tests pass      | Note discrepancy, investigate further       |
+| Comment about type error + CI lint fail | Strong VALID with CI evidence               |
+| Comment claims broken + CI fully green  | May weaken → investigate if INVALID         |
 
 Determine verdict for each:
 
@@ -181,6 +212,15 @@ After all agents complete, report total replies posted.
 | Valid (consider)  | {X}   |
 | Partially valid   | {X}   |
 | Invalid           | {X}   |
+| CI-correlated     | {X}   |
+
+## CI Status
+
+| Check | Status | Details |
+|-------|--------|---------|
+| {name} | {pass/fail/pending} | {failure reason or "—"} |
+
+{If CI failures exist, note: "X comments correlated with CI findings"}
 
 ## Action Items
 
@@ -207,6 +247,7 @@ After all agents complete, report total replies posted.
 - **Verdict:** {verdict badge}
 - **Summary:** {1-2 sentence assessment}
 - **Cross-file context:** {relevant changes in other files, if any}
+- **CI correlation:** {relevant CI check status, if any}
 
 ---
 
