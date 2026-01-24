@@ -1,6 +1,6 @@
-# DeployerPHP Rules
+# DeployerPHP
 
-We're building DeployerPHP, a server and site deployment tool for PHP -- a Composer package and CLI built on Symfony Console/
+We're building DeployerPHP, a set of command-line interface (CLI) tools for provisioning, installing, and deploying servers and sites in PHP. It's an open-source alternative to services like Laravel Forge and Ploi. These tools are bundled as a Composer package built on Symfony Console. The name of the Composer package is `loadinglucian/deployer-php`.
 
 > **IMPORTANT**
 >
@@ -51,20 +51,30 @@ app/
 ├── Contracts/         # BaseCommand
 ├── Enums/             # Distribution enums
 ├── Exceptions/        # Custom exceptions
+├── Docs/              # Documentation website
+│   ├── DocsController.php     # Request handling, template rendering
+│   ├── MarkdownParser.php     # Markdown → HTML with GFM, callouts
+│   ├── NavigationBuilder.php  # Sidebar nav from README TOC
+│   └── TocExtractor.php       # "On This Page" heading extraction
 ├── Container.php      # DI auto-wiring
 └── SymfonyApp.php     # CLI registration
 playbooks/             # Remote bash scripts
+public/                # Documentation website (self-contained)
+├── index.php          # Router and entry point
+└── css/
+    └── app.css        # Prose, callouts, dark mode styles
 ```
 
-| Layer        | Purpose                          | I/O         |
-| ------------ | -------------------------------- | ----------- |
-| Commands     | Orchestrate user interaction     | Yes         |
-| Traits       | Shared command operations        | Via Command |
-| Services     | Business logic, external APIs    | No          |
-| Repositories | Inventory CRUD                   | No          |
-| Builders     | Centralized DTO instantiation    | No          |
-| DTOs         | Immutable readonly data objects  | No          |
-| playbooks/   | Remote server provisioning       | Via SSH     |
+| Layer        | Purpose                         | I/O         |
+| ------------ | ------------------------------- | ----------- |
+| Commands     | Orchestrate user interaction    | Yes         |
+| Traits       | Shared command operations       | Via Command |
+| Services     | Business logic, external APIs   | No          |
+| Repositories | Inventory CRUD                  | No          |
+| Builders     | Centralized DTO instantiation   | No          |
+| DTOs         | Immutable readonly data objects | No          |
+| playbooks/   | Remote server provisioning      | Via SSH     |
+| Docs/        | Documentation website rendering | Yes (HTTP)  |
 
 **Key Classes:**
 
@@ -77,7 +87,7 @@ playbooks/             # Remote bash scripts
 
 **Command Domains:**
 
-- Cloud (17): aws:dns:*, aws:key:*, aws:provision, cf:dns:*, do:dns:*, do:key:*, do:provision
+- Cloud (17): aws:dns:_, aws:key:_, aws:provision, cf:dns:_, do:dns:_, do:key:\*, do:provision
 - Cron (3): create, delete, sync
 - Mariadb (4): install, restart, start, stop
 - Memcached (4): install, restart, start, stop
@@ -102,6 +112,10 @@ flowchart LR
     Commands --> GitService --> git-cli
     Commands --> IoService --> laravel-prompts
 ```
+
+**Docs Website:**
+
+Self-contained documentation site that parses `README.md` and `docs/*.md` files. Run locally with `php -S localhost:8000 -t public/`. Built with league/commonmark for Markdown parsing, Tailwind CSS (CDN) for styling, Alpine.js for interactivity, and Prism.js for syntax highlighting. Supports dark mode, responsive layout, and GitHub-style callouts (`[!NOTE]`, `[!TIP]`, etc.).
 
 ### Maintain
 

@@ -1,3 +1,7 @@
+---
+paths: docs/**/*.md, **/README.md
+---
+
 # Documentation Rules
 
 Rules for writing DeployerPHP user documentation.
