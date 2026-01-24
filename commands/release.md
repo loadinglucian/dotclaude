@@ -32,13 +32,13 @@ Automates version tagging and changelog management following semver and keepacha
 
 Parse `$ARGUMENTS` to determine version increment:
 
-| Argument        | Action                                |
-| --------------- | ------------------------------------- |
-| (empty)         | Increment patch (+0.0.1)              |
-| `patch`         | Increment patch (+0.0.1)              |
-| `minor`         | Increment minor (0.+1.0, reset patch) |
-| `major`         | Increment major (+1.0.0, reset minor) |
-| (unknown)       | Output usage help below               |
+| Argument  | Action                                |
+| --------- | ------------------------------------- |
+| (empty)   | Increment patch (+0.0.1)              |
+| `patch`   | Increment patch (+0.0.1)              |
+| `minor`   | Increment minor (0.+1.0, reset patch) |
+| `major`   | Increment major (+1.0.0, reset minor) |
+| (unknown) | Output usage help below               |
 
 ```
 Usage: /release [major|minor|patch]
@@ -101,11 +101,11 @@ Otherwise, parse the current version into components: `MAJOR.MINOR.PATCH`
 
 Apply increment based on argument:
 
-| Argument | Calculation                        |
-| -------- | ---------------------------------- |
-| major    | MAJOR+1, MINOR=0, PATCH=0          |
-| minor    | MAJOR, MINOR+1, PATCH=0            |
-| patch    | MAJOR, MINOR, PATCH+1              |
+| Argument | Calculation               |
+| -------- | ------------------------- |
+| major    | MAJOR+1, MINOR=0, PATCH=0 |
+| minor    | MAJOR, MINOR+1, PATCH=0   |
+| patch    | MAJOR, MINOR, PATCH+1     |
 
 New version format: `{MAJOR}.{MINOR}.{PATCH}`
 
@@ -155,26 +155,31 @@ Create the changelog entry:
 ## [{version}] - {YYYY-MM-DD}
 
 ### Added
+
 - {feat commit messages}
 
 ### Fixed
+
 - {fix commit messages}
 
 ### Security
+
 - {security commit messages}
 
 ### Deprecated
+
 - {deprecated commit messages}
 
 ### Changed
+
 - {other commit messages}
 ```
 
 Only include sections that have commits.
 
-#### 4.4: Update CHANGELOG.md
+#### 4.4: Update CHANGELOG
 
-Check if `CHANGELOG.md` exists:
+Check if `CHANGELOG` exists:
 
 **If exists:** Insert the new entry after the header (after the "All notable changes..." line).
 
@@ -218,7 +223,7 @@ Present the release summary and ask for approval:
 ---
 
 Proceed with release? This will:
-1. Commit CHANGELOG.md
+1. Commit CHANGELOG
 2. Create annotated tag v{version}
 3. Push commit and tag to origin
 ```
@@ -232,7 +237,7 @@ If the user declines or requests changes, abort and provide guidance on how to a
 Create an annotated tag with the changelog entry as the message:
 
 ```bash
-git add CHANGELOG.md
+git add CHANGELOG
 git commit -m "docs(changelog): add entry for v{version}"
 git tag -a "v{version}" -m "{changelog_entry}"
 ```
