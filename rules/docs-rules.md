@@ -192,10 +192,14 @@ Every documentation file follows this structure:
 **Table of Contents format:**
 
 ```markdown
+<!-- toc -->
+
 - [Main Section](#main-section)
-  - [Subsection One](#subsection-one)
-  - [Subsection Two](#subsection-two)
+    - [Subsection One](#subsection-one)
+    - [Subsection Two](#subsection-two)
 - [Another Section](#another-section)
+
+<!-- /toc -->
 ```
 
 Use 4-space indentation for nested items. Match anchor names to heading text in kebab-case.
